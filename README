@@ -7,6 +7,7 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
+(BEWARE!!! mostly working but not yet completed!! first release in the next few days...)
 
  This class acts as a Ruby wrapper around the smbclient command line utility, allowing access to Samba (SMB, CIFS) shares from Ruby.
  What's special about Sambala's implementation, is that it allows for both both queue
