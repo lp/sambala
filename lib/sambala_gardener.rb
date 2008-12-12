@@ -13,19 +13,12 @@ class Sambala
 
     def exec_interactive(command,data)
       id = @gardener.seed("#{command} #{data}")
-      return message(@gardener.harvest(id))
+      result = @gardener.harvest(id)
+      return result[:success], result[:message]
     end
 
     def exec_queue(command,data)
       return @gardener.seed("#{command} #{data}")
-    end
-
-    def message(result)
-      msg = result[:message][0]
-      msg.gsub!(/smb: \x5C\x3E\s*$/, '')
-      msg.gsub!(/^\s*#{result[:seed]}/, '')
-      msg.lstrip!
-      return msg
     end
 
     def init_gardener
@@ -34,16 +27,29 @@ class Sambala
           w.sync = true
           $expect_verbose = false
 
-          r.expect(/.*\xD\xAsmb: \x5C\x3E.*/) do |text|
+          r.expect(/.*\xD\xAsmb: [\x5C]+\x3E.*/) do |text|
             # some form of connection confirmation will need to come here
           end
           Abundance.grow do |seed|
             w.print "#{seed.sprout}\r"
             catch :result do
               loop do
-                r.expect(/.*\xD\xAsmb: \x5C\x3E.*/) do |text|
+                r.expect(/.*\xD\xAsmb: \w*[\x5C]*\x3E.*/) do |text|
                   if text != nil
-                    seed.crop(true, text)
+                    msg = text[0]
+                    
+                    msg.gsub!(/smb: \w*\x5C\x3E\s*$/, '')
+                    msg.gsub!(/^\s*#{seed.sprout}/, '')
+                    msg.lstrip!
+                    
+                    success = case seed.sprout
+                      when /^put/
+                        msg['putting'].nil? ? false : true
+                      else
+                        msg['NT_STATUS'].nil? ? true : false
+                      end
+                    
+                    seed.crop(success, msg)
                     throw :result
                   end
                 end
