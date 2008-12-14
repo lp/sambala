@@ -137,7 +137,7 @@ class Sambala
   
   def queue_results
     crop = @gardener.harvest(:full_crop)
-    crop.map! { |result| [ result[:success], result[:seed], result[:message]] }
+    crop.map! { |result| [ result[:success], result[:seed], result[:message] ]  }
   end
   
   def close
