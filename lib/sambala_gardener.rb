@@ -26,10 +26,18 @@ class Sambala
         PTY.spawn("smbclient //#{@options[:host]}/#{@options[:share]} #{@options[:password]} -U #{@options[:user]}") do |r,w,pid|
           w.sync = true
           $expect_verbose = false
-
-          r.expect(/.*\xD\xAsmb: [\x5C]+\x3E.*/) do |text|
-            # some form of connection confirmation will need to come here
+          
+          catch :init do
+            loop do
+              r.expect(/.*\xD\xAsmb:[ \x5C]*\x3E.*/) do |text|
+                if text != nil
+                  Abundance.init_status(true,"#{text.inspect}")
+                  throw :init
+                end
+              end
+            end
           end
+
           Abundance.grow do |seed|
             w.print "#{seed.sprout}\r"
             catch :result do
