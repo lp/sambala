@@ -8,6 +8,7 @@ class Sambala
   module Gardener
     
     def execute(command,data,queue)
+      puts "executing command: #{command} data: #{data} queue: #{queue}"
       (queue.is_a? TrueClass) ? exec_queue(command,data) : exec_interactive(command,data)
     end
 

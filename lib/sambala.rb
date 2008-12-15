@@ -56,83 +56,136 @@ class Sambala
   # when queued operations are executed in parallel, one does not control which command will get executed first, 
   # making a queued +cd+ operation very dangerous.  
   # === Parameters
-  # * _path_ = the path to change directory to
+  # * :to = the path to change directory to
   # === Interactive Returns
   # * _boolean_ = confirms if +cd+ operation completed successfully
   # === Example
-  #   sam.cd('aFolder/anOtherFolder/')
-  def cd(path)
-    execute('cd', path, false)[0]
+  #   sam.cd(:to => 'aFolder/anOtherFolder/')
+  def cd(opts={:to => ''})
+    execute('cd', opts[:to], false)[0]
   end
   
-  # The +du+ instance does exactly what _du_ usually does.  See _man du_ for help.
+  # The +du+ instance does exactly what _du_ usually does: estimates file space usage.
   # === Parameters
-  # * _queue_ = the the queue processing mode on for this command invocation when set to true.  Defaults to false when no option given.
+  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
   # === Interactive Returns
-  # * _string_ = containing +du+ command results
+  # * _string_ = +du+ command results
   # === Example
   #   puts sam.du   # =>  34923 blocks of size 2097152. 27407 blocks available
   #                       Total number of bytes: 59439077
-  def du(queue=false)
-    execute('du', '', queue)[1]
+  def du(opts={:queue=>false})
+    execute('du', '', opts[:queue])[1]
   end
   
   # The +del+ instance method delete files on smb shares
   # === Parameters
-  # * _path_ = the path of the file to be deleted
-  # * _queue_ = the the queue processing mode on for this command invocation when set to true.  Defaults to false when no option given.
+  # * :mask = the mask matching the file to be deleted inside the current working directory.
+  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
   # === Interactive Returns
   # * _boolean_ = confirms if +del+ operation completed successfully
   # === Example
-  #   sam.del('aFile')
-  def del(path,queue=false)
-    execute('del', path, queue)[0]
+  #   sam.del(:mask => 'aFile')
+  def del(opts={:mask => nil, :queue=>false})
+    execute('del', opts[:mask], opts[:queue])[0]
   end
   
-  # The +get+ instance method copies files onto smb shares.
+  # The +get+ instance method copy files from smb shares.
   # As with the smbclient get command, the destination path is optional.
   # === Parameters
-  # * :from = the source path, absolute or relative to the current working directory in the local OS
-  # * :to = the destination path, relative to the current working directory in the smb server OS
-  # * _queue_ = the the queue processing mode on for this command invocation when set to true.  Defaults to false when no option given.
+  # * :from = the source path, relative path to the current working directory in the smb server
+  # * :to = the destination path, absolute or relative path to the current working directory in the local OS
+  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
   # === Interactive Returns
   # _array_ = [ _booleanSuccess_, _getResultMessage_ ]
   # === Example
-  #   sam.gets   # => 
+  #   sam.get(:from => 'aFile.txt')   # =>  true
   def get(opts={:from => nil, :to => nil, :queue => false})
     opts[:to].nil? ? strng = opts[:from] : strng = opts[:from] + ' ' + opts[:to]
     execute('get', strng, opts[:queue])
   end
   
-  # The +ls+ instance method list the files and directories contained inside the current working directory in the smb server OS.
+  # The +lcd+ instance method changes the current working directory on the local machine to the directory specified.
+  # Its one of the only implemented command where queue mode is not available, for the simple reason that
+  # when queued operations are executed in parallel, one does not control which command will get executed first, 
+  # making a queued +lcd+ operation very dangerous.  
   # === Parameters
-  # * _queue_ = the the queue processing mode on for this command invocation when set to true.  Defaults to false when no option given. 
+  # * :to = the path to change directory to
   # === Interactive Returns
-  # * _string_ = containing +ls+ command results  
-  def ls(queue=false)
-    mask = nil
-    execute('ls' ,mask, queue)[1]
+  # * _boolean_ = confirms if +cd+ operation completed successfully
+  # === Example
+  #   sam.lcd(:to => 'aLocalFolder/anOtherFolder/')
+  def lcd(opts={:to => ''})
+    execute('lcd', opts[:to], false)[0]
+  end
+  
+  # The +lowercase+ method toggles lowercasing of filenames for the get command.
+  # Can be usefull when copying files from DOS servers.
+  # This method has no queue processing option
+  # === Interactive Returns
+  # * _boolean_ = confirms if +lowercase+ operation completed successfully
+  # === Example
+  #   sam.lowercase   # => subsequent ge
+  def lowercase
+    execute('lowercase' ,'', false)[0]
+  end
+  
+  # The method +ls+ or its alias _dir_, list the files and directories matching :mask in the current working directory on the smb server.
+  # === Parameters
+  # * :mask = the mask matching the file to be listed inside the current working directory.
+  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
+  # === Interactive Returns
+  # * _string_ = containing +ls+ command results
+  # === Example
+  #   sam.ls  # =>  genpi.rb                            A       81  Mon Nov 17 22:12:40 2008
+  #                     34923 blocks of size 2097152. 27407 blocks available
+  def ls(opts={:mask => nil, :queue=>false})
+    execute('ls' ,opts[:mask], opts[:queue])[1]
   end
   alias dir ls
-  
+
+  # The method +mkdir+ or its alias _md_, creates a new directory on the server.
+  # === Parameters
+  # * :path = the directory to create
+  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
   # === Interactive Returns
   # * _boolean_ = confirms if +mkdir+ operation completed successfully
-  def mkdir(path,queue=false)
-    execute('md' ,path, queue)[0]
+  # === Example
+  #   sam.mkdir(:path => 'aFolder/aNewFolder')
+  def mkdir(opts={:path => '', :queue => false})
+    execute('md' ,opts[:path], opts[:queue])[0]
   end
   alias md mkdir
   
+  # The +put+ instance method copy files to smb shares.
+  # As with the smbclient put command, the destination path is optional.
+  # === Parameters
+  # * :from = the source path, absolute or relative path to the current working directory in the local OS
+  # * :to = the destination path, relative path to the current working directory in the smb server OS
+  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
   # === Interactive Returns
   # _array_ = [ _booleanSuccess_, _putResultMessage_ ]
+  # === Example
+  #   sam.put(:from => 'aLocalFile.txt')   # =>  true
+
   def put(opts={:from => nil, :to => nil, :queue => false})
     opts[:to].nil? ? strng = opts[:from] : strng = opts[:from] + ' ' + opts[:to]
     execute('put' ,strng, opts[:queue])
   end
   
+  # The +recurse+ method toggles directory recursion
+  # This method has no queue processing option
+  # === Interactive Returns
+  # * _boolean_ = confirms if +mkdir+ operation completed successfully
+  # === Example
+  #   sam.recurse   # => true
+  def recurse
+    execute('recurse' ,'', false)[0]
+  end
+  
   # === Interactive Returns
   # * _string_ = containing +volume+ command results
-  def volume(queue=false)
-    execute('volume' ,'', queue)[1]
+  def volume(opts={:queue=>false})
+    execute('volume' ,'', opts[:queue])[1]
   end
   
   def queue_results
