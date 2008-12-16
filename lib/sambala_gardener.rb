@@ -58,6 +58,8 @@ class Sambala
       @gardener.seed("#{command} #{data}").integer? ? [true,true] : [false,false]
     end
     
+    # The +gardener_ok+ method does the +init_gardener+ invocation, degrading the options parameters until
+    # it initializes, or raise SmbInitError exception after 4 try.
     def gardener_ok
       init = []
       catch :gardener do
