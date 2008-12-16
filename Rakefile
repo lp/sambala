@@ -4,7 +4,7 @@ require 'rake/gempackagetask'
 
 spec = Gem::Specification.new do |s|
   s.name = 'sambala'
-  s.version = '0.8.2'
+  s.version = '0.8.3'
   s.author = 'Louis-Philippe Perron'
   s.email = 'lp@spiralix.org'
   s.homepage = 'http://sambala.rubyforge.org/'
