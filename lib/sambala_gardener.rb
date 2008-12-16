@@ -1,15 +1,13 @@
-# The Sambala::Gardener module bings Abundance into Sambala.
-# A bunch of mixins used inside Sambala to access Abundance Non-Blocking Threading.
-# These methods are a higher level abstraction of Abundance methods,
-# serving as reusable general purpose agents inside Sambala.
-# 
-# Author:: lp (mailto:lp@spiralix.org)
-# Copyright:: 2008 Louis-Philippe Perron - Released under the terms of the MIT license
-# 
-# :title:Sambala::Gardener
-
 class Sambala
-  
+  # The Sambala::Gardener module bings Abundance into Sambala.
+  # A bunch of mixins used inside Sambala to access Abundance Non-Blocking Threading.
+  # These methods are a higher level abstraction of Abundance methods,
+  # serving as reusable general purpose agents inside Sambala.
+  # 
+  # Author:: lp (mailto:lp@spiralix.org)
+  # Copyright:: 2008 Louis-Philippe Perron - Released under the terms of the MIT license
+  # 
+  # :title:Sambala::Gardener
   module Gardener
     
     # The +execute+ method splits the execution according to the operation mode: queue or interactive.
