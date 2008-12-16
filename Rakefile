@@ -15,7 +15,7 @@ spec = Gem::Specification.new do |s|
   s.require_path = "lib"
   # s.test_file = "test/ts_abundance.rb"
   s.has_rdoc = true
-  s.add_dependency("abundance", ">= 1.0.7")
+  s.add_dependency("abundance", ">= 1.0.9")
 end
 Rake::GemPackageTask.new(spec) do |pkg|
   pkg.need_tar = true
