@@ -49,8 +49,16 @@ class Sambala
   #                       :password =>  'eggman', 
   #                       :threads  =>  2 )
   def initialize(options={:domain => '', :host => '', :user => '', :password => '', :threads => 1})
-    options[:threads] = 4 if options[:threads] > 4
-    @options = options; init_gardener
+    begin
+      options[:threads] = 4 if options[:threads] > 4
+      options[:init_timeout] = options[:threads] * 2
+      @options = options; gardener_ok
+    rescue SmbInitError
+      raise SmbInitError.exception("Failed smbclient initialisation")
+    rescue
+      @gardener.close unless @gardener.nil? || @gardener.class != 'Gardener'
+      raise RuntimeError.exception("Unknown Process Failed!!")
+    end
   end
   # The +cd+ instance method takes only one argument, the path to which you wish to change directory
   # Its one of the only implemented command where queue mode is not available, for the simple reason that
