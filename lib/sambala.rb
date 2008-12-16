@@ -49,6 +49,7 @@ class Sambala
   #                       :password =>  'eggman', 
   #                       :threads  =>  2 )
   def initialize(options={:domain => '', :host => '', :user => '', :password => '', :threads => 1})
+    options[:threads] = 4 if options[:threads] > 4
     @options = options; init_gardener
   end
   # The +cd+ instance method takes only one argument, the path to which you wish to change directory
@@ -60,7 +61,7 @@ class Sambala
   # === Interactive Returns
   # * _boolean_ = confirms if +cd+ operation completed successfully
   # === Example
-  #   sam.cd(:to => 'aFolder/anOtherFolder/')
+  #   sam.cd(:to => 'aFolder/anOtherFolder/')   # =>  true
   def cd(opts={:to => ''})
     execute('cd', opts[:to], false)[0]
   end
@@ -84,7 +85,7 @@ class Sambala
   # === Interactive Returns
   # * _boolean_ = confirms if +del+ operation completed successfully
   # === Example
-  #   sam.del(:mask => 'aFile')
+  #   sam.del(:mask => 'aFile')   # =>  true
   def del(opts={:mask => nil, :queue=>false})
     execute('del', opts[:mask], opts[:queue])[0]
   end
@@ -98,7 +99,7 @@ class Sambala
   # === Interactive Returns
   # _array_ = [ _booleanSuccess_, _getResultMessage_ ]
   # === Example
-  #   sam.get(:from => 'aFile.txt')   # =>  true
+  #   sam.get(:from => 'aFile.txt')   # => [true, "getting file \\aFile.txt.rb of size 3877 as test.rb (99.6 kb/s) (average 89.9 kb/s)\r\n"]
   def get(opts={:from => nil, :to => nil, :queue => false})
     opts[:to].nil? ? strng = opts[:from] : strng = opts[:from] + ' ' + opts[:to]
     execute('get', strng, opts[:queue])
@@ -113,7 +114,7 @@ class Sambala
   # === Interactive Returns
   # * _boolean_ = confirms if +cd+ operation completed successfully
   # === Example
-  #   sam.lcd(:to => 'aLocalFolder/anOtherFolder/')
+  #   sam.lcd(:to => 'aLocalFolder/anOtherFolder/')   # => true
   def lcd(opts={:to => ''})
     execute('lcd', opts[:to], false)[0]
   end
@@ -124,9 +125,9 @@ class Sambala
   # === Interactive Returns
   # * _boolean_ = confirms if +lowercase+ operation completed successfully
   # === Example
-  #   sam.lowercase   # => subsequent ge
+  #   sam.lowercase   # => true      # toggle from files all UPPERCASE to all lowercase
   def lowercase
-    execute('lowercase' ,'', false)[0]
+    execute_all('lowercase' ,'')
   end
   
   # The method +ls+ or its alias _dir_, list the files and directories matching :mask in the current working directory on the smb server.
@@ -142,7 +143,31 @@ class Sambala
     execute('ls' ,opts[:mask], opts[:queue])[1]
   end
   alias dir ls
-
+  
+  # The +mask+ method sets a mask to be used during recursive operation of the +mget+ and +mput+ commands.
+  # See man page for smbclient to get more on the details of operation
+  # This method has no queue processing option
+  # === Parameters
+  # * :mask = the matching filter
+  # === Example
+  #   sam.mask(:mask => 'filter*')  # => true
+  def mask(opts={:mask => nil})
+    execute_all('mask' ,opts[:mask])
+  end
+  
+  # The +mget+ method copy all files matching :mask from the server to the client machine
+  # See man page for smbclient to get more on the details of operation
+  # === Parameters
+  # * :mask = the file matching filter
+  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
+  # === Interactive Returns
+  # _array_ = [ _booleanSuccess_, _mgetResultMessage_ ]
+  # === Example
+  #   sam.mget(:mask => 'file*')  # => [true, "getting file \\file_new.txt of size 3877 as file_new.txt (99.6 kb/s) (average 89.9 kb/s)\r\n"]
+  def mget(opts={:mask => nil, :queue => false})
+    execute('mget' ,opts[:mask], opts[:queue])
+  end
+  
   # The method +mkdir+ or its alias _md_, creates a new directory on the server.
   # === Parameters
   # * :path = the directory to create
@@ -150,11 +175,24 @@ class Sambala
   # === Interactive Returns
   # * _boolean_ = confirms if +mkdir+ operation completed successfully
   # === Example
-  #   sam.mkdir(:path => 'aFolder/aNewFolder')
+  #   sam.mkdir(:path => 'aFolder/aNewFolder')  # => true
   def mkdir(opts={:path => '', :queue => false})
-    execute('md' ,opts[:path], opts[:queue])[0]
+    execute('mkdir' ,opts[:path], opts[:queue])[0]
   end
   alias md mkdir
+  
+  # The +mput+ method copy all files matching :mask in the current working directory on the local machine to the server.
+  # See man page for smbclient to get more on the details of operation
+  # === Parameters
+  # * :mask = the file matching filter
+  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
+  # === Interactive Returns
+  # _array_ = [ _booleanSuccess_, _mputResultMessage_ ]
+  # === Example
+  #   sam.mput(:mask => 'file*')  # =>  [true, "putting file \\file_new.txt of size 1004 as file_new.txt (65.4 kb/s) (average 65.4 kb/s)\r\n"]
+  def mput(opts={:mask => nil, :queue => false})
+    execute('mput' ,opts[:mask], opts[:queue])
+  end
   
   # The +put+ instance method copy files to smb shares.
   # As with the smbclient put command, the destination path is optional.
@@ -165,7 +203,7 @@ class Sambala
   # === Interactive Returns
   # _array_ = [ _booleanSuccess_, _putResultMessage_ ]
   # === Example
-  #   sam.put(:from => 'aLocalFile.txt')   # =>  true
+  #   sam.put(:from => 'aLocalFile.txt')   # =>  [false, "aLocalFile.txt does not exist\r\n"]
 
   def put(opts={:from => nil, :to => nil, :queue => false})
     opts[:to].nil? ? strng = opts[:from] : strng = opts[:from] + ' ' + opts[:to]
@@ -179,22 +217,34 @@ class Sambala
   # === Example
   #   sam.recurse   # => true
   def recurse
-    execute('recurse' ,'', false)[0]
+    execute_all('recurse' ,'')
   end
   
+  # The +volume+ method returns remote volume information.
+  # === Parameters
+  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
   # === Interactive Returns
   # * _string_ = containing +volume+ command results
+  # === Example
+  #   sam.volume  # => "Volume: |geminishare| serial number 0x6d723053"
   def volume(opts={:queue=>false})
     execute('volume' ,'', opts[:queue])[1]
   end
   
+  # The +queue_results+ methods collect a done queue items results
+  # === Example 
+  #   result = sam.queue_results
   def queue_results
     crop = @gardener.harvest(:full_crop)
     crop.map! { |result| [ result[:success], result[:seed], result[:message] ]  }
   end
   
+  # The +close+ method safely end the smbclient session
+  # === Example
+  #   sam.close
   def close
-    return @gardener.close
+    result = @gardener.close
+    result.values.map { |queue| queue.empty? }.uniq.size == 1 ? true : false
   end
   
 end
