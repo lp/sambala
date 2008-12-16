@@ -1,4 +1,5 @@
 class Sambala
+  class SmbInitError < StandardError; end
   # The Sambala::Gardener module bings Abundance into Sambala.
   # A bunch of mixins used inside Sambala to access Abundance Non-Blocking Threading.
   # These methods are a higher level abstraction of Abundance methods,
@@ -56,13 +57,25 @@ class Sambala
     def exec_queue(command,data)
       @gardener.seed("#{command} #{data}").integer? ? [true,true] : [false,false]
     end
+    
+    def gardener_ok
+      init = []
+      catch :gardener do
+        4.times do |num|
+          init_gardener; init = @init_status = @gardener.init_status
+          init.map! { |result| result[:success] }
+          throw :gardener if init.uniq.size == 1 and init[0] == true
+          @gardener.close; @gardener = nil
+          @options[:threads] -= 1 unless @options[:threads] == 1; @options[:init_timeout] += 1
+        end
+        raise SmbInitError.exception("Couldn't set smbclient properly")
+      end
+    end
 
     # The +init_gardener+ method initialize a gardener class object
     def init_gardener
-      # To Implement:
-      # workgroup -W WORKGROUP
-      @gardener = Abundance.gardener(:seed_size => 8192, :rows => @options[:threads], :init_timeout => @options[:threads] + 1) do
-        PTY.spawn("smbclient //#{@options[:host]}/#{@options[:share]} #{@options[:password]} -U #{@options[:user]}") do |r,w,pid|
+      @gardener = Abundance.gardener(:seed_size => 8192, :rows => @options[:threads], :init_timeout => @options[:init_timeout]) do
+        PTY.spawn("smbclient //#{@options[:host]}/#{@options[:share]} #{@options[:password]} -W #{@options[:domain]} -U #{@options[:user]}") do |r,w,pid|
           w.sync = true
           $expect_verbose = false
           
@@ -70,7 +83,7 @@ class Sambala
             loop do
               r.expect(/.*\xD\xAsmb:[ \x5C]*\x3E.*/) do |text|
                 if text != nil
-                  Abundance.init_status(true,"#{text.inspect}")
+                  text[0] =~ /.*Server=.*/i ? Abundance.init_status(true,"#{text.inspect}") : Abundance.init_status(false,"#{text.inspect}")
                   throw :init
                 end
               end
