@@ -3,7 +3,8 @@ class Sambala
   # The Sambala::Gardener module bings Abundance into Sambala.
   # A bunch of mixins used inside Sambala to access Abundance Non-Blocking Threading.
   # These methods are a higher level abstraction of Abundance methods,
-  # serving as reusable general purpose agents inside Sambala.
+  # serving as reusable general purpose agents inside Sambala, mainly
+  # for those repetitive execution commands.
   # 
   # Author:: lp (mailto:lp@spiralix.org)
   # Copyright:: 2008 Louis-Philippe Perron - Released under the terms of the MIT license
