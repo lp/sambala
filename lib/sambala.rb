@@ -247,6 +247,13 @@ class Sambala
     crop.map! { |result| [ result[:success], result[:seed], result[:message] ]  }
   end
   
+  # The +progress+ method returns a progress ratio indicator from 0.00 to 1.00
+  # === Example
+  #   progress = sam.progress   # => 0.75
+  def progress
+    @gardener.growth(:progress)
+  end
+  
   # The +close+ method safely end the smbclient session
   # === Example
   #   sam.close
