@@ -44,11 +44,12 @@ class Sambala
   # * :threads = how many parallel operations you want initiated, !!! higher than 4 at you own risk !!!
   # === Example
   #   sam = Sambala.new(  :domain   =>  'NTDOMAIN', 
-  #                       :host     =>  'sambaserver', 
+  #                       :host     =>  'sambaserver',
+  #                       :share    =>  'sambashare',
   #                       :user     =>  'walrus', 
   #                       :password =>  'eggman', 
   #                       :threads  =>  2 )
-  def initialize(options={:domain => '', :host => '', :user => '', :password => '', :threads => 1})
+  def initialize(options={:domain => '', :host => '', :share => '', :user => '', :password => '', :threads => 1})
     begin
       options[:threads] = 4 if options[:threads] > 4
       options[:init_timeout] = options[:threads] * 2
