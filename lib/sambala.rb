@@ -99,7 +99,7 @@ class Sambala
     execute('del', opts[:mask], opts[:queue])[0]
   end
   
-  # The +exist?+ instance method is borrowed from Ruby File Class idiome.
+  # The exist? instance method is borrowed from Ruby File Class idiome.
   # It is used to test the presence of files or directories on the server
   # === Parameters
   # * :mask = the mask matching the file or directory to look for.
