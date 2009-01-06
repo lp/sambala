@@ -99,6 +99,19 @@ class Sambala
     execute('del', opts[:mask], opts[:queue])[0]
   end
   
+  # The +exist?+ instance method is borrowed from Ruby File Class idiome.
+  # It is used to test the presence of files or directories on the server
+  # === Parameters
+  # * :mask = the mask matching the file or directory to look for.
+  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
+  # === Interactive Returns
+  # * _boolean_ = confirm the presence of a matching file or directory
+  # === Example
+  #   sam.exist?(:mask => 'aFile')  # => true
+  def exist?(opts={:mask => nil, :queue => false})
+    execute('ls', opts[:mask], opts[:queue])[0]
+  end
+  
   # The +get+ instance method copy files from smb shares.
   # As with the smbclient get command, the destination path is optional.
   # === Parameters
