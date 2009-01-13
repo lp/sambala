@@ -77,7 +77,7 @@ class Sambala
 
     # The +init_gardener+ method initialize a gardener class object
     def init_gardener
-      @gardener = Abundance.gardener(:wheelbarrow => 8192, :rows => @options[:threads], :init_timeout => @options[:init_timeout]) do
+      @gardener = Abundance.gardener(:rows => @options[:threads], :init_timeout => @options[:init_timeout]) do
         PTY.spawn("smbclient //#{@options[:host]}/#{@options[:share]} #{@options[:password]} -W #{@options[:domain]} -U #{@options[:user]}") do |r,w,pid|
           w.sync = true
           $expect_verbose = false
