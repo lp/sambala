@@ -45,7 +45,7 @@ class Sambala
     #   result = exec_interactive('put','aFile.txt')    # =>  [false, "aFile.txt does not exist\r\n"]
     def exec_interactive(command,data)
       id = @gardener.seed("#{command} #{data}")
-      result = @gardener.harvest(id)
+      result = @gardener.harvest(:one,id)
       return result[:success], result[:message]
     end
 
