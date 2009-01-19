@@ -4,7 +4,7 @@ require 'rake/gempackagetask'
 
 spec = Gem::Specification.new do |s|
   s.name = 'sambala'
-  s.version = '0.8.7'
+  s.version = '0.8.8'
   s.author = 'Louis-Philippe Perron'
   s.email = 'lp@spiralix.org'
   s.homepage = 'http://sambala.rubyforge.org/'
@@ -15,7 +15,7 @@ spec = Gem::Specification.new do |s|
   s.require_path = "lib"
   # s.test_file = "test/ts_abundance.rb"
   s.has_rdoc = true
-  s.add_dependency("abundance", ">= 1.1.1")
+  s.add_dependency("abundance", ">= 1.2.6")
 end
 Rake::GemPackageTask.new(spec) do |pkg|
   pkg.need_tar = true
