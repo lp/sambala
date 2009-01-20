@@ -54,8 +54,6 @@ class Sambala
       options[:threads] = 4 if options[:threads] > 4
       options[:init_timeout] = options[:threads] * 2
       @options = options; gardener_ok
-    rescue SmbInitError
-      raise SmbInitError.exception("Failed smbclient initialisation")
     rescue
       @gardener.close unless @gardener.nil? || @gardener.class != 'Gardener'
       raise RuntimeError.exception("Unknown Process Failed!!")
