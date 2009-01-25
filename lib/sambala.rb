@@ -52,13 +52,14 @@ class Sambala
   def initialize(options={:domain => '', :host => '', :share => '', :user => '', :password => '', :threads => 1})
     begin
       options[:threads] = 4 if options[:threads] > 4
-      options[:init_timeout] = options[:threads] * 2
+      options[:init_timeout] = options[:threads] * 1
       @options = options; gardener_ok
     rescue
       @gardener.close unless @gardener.nil? || @gardener.class != 'Gardener'
       raise RuntimeError.exception("Unknown Process Failed!!")
     end
   end
+
   # The +cd+ instance method takes only one argument, the path to which you wish to change directory
   # Its one of the only implemented command where queue mode is not available, for the simple reason that
   # when queued operations are executed in parallel, one does not control which command will get executed first, 
