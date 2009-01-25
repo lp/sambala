@@ -11,6 +11,7 @@ class Sambala
   # 
   # :title:Sambala::Gardener
   module Gardener
+		require 'timeout'
     
     # The +execute+ method splits the execution according to the operation mode: queue or interactive.
     # === Parameters
@@ -65,11 +66,15 @@ class Sambala
       init = []
       catch :gardener do
         4.times do |num|
-          init_gardener; init = @init_status = @gardener.init_status
-          init.map! { |result| result[:success] }
-          throw :gardener if init.uniq.size == 1 and init[0] == true
-          @gardener.close; @gardener = nil
-          @options[:threads] -= 1 unless @options[:threads] == 1; @options[:init_timeout] += 1
+          init_gardener
+					begin
+						Timeout.timeout(2) { @init_status = @gardener.init_status }
+						init = @init_status
+          	init.map! { |result| result[:success] }
+          	throw :gardener if init.uniq.size == 1 and init[0] == true
+					rescue Timeout::Error
+					end
+					kill_gardener_and_incr
         end
         raise SmbInitError.exception("Couldn't set smbclient properly")
       end
@@ -81,7 +86,6 @@ class Sambala
         PTY.spawn("smbclient //#{@options[:host]}/#{@options[:share]} #{@options[:password]} -W #{@options[:domain]} -U #{@options[:user]}") do |r,w,pid|
           w.sync = true
           $expect_verbose = false
-          
           catch :init do
             loop do
               r.expect(/.*\xD\xAsmb:[ \x5C]*\x3E.*/) do |text|
@@ -92,7 +96,6 @@ class Sambala
               end
             end
           end
-
           Abundance.grow do |seed|
             w.print "#{seed.sprout}\r"
             catch :result do
@@ -122,6 +125,20 @@ class Sambala
         end
       end
     end
+		
+		private
+		
+		def kill_gardener_and_incr
+			begin
+				Timeout.timeout(2) { @gardener.close }
+			rescue Timeout::Error
+				pids = @gardener.rows_pids; pids << @gardener.garden_pid
+				pids.each { |pid| Process.kill('HUP', pid)}
+			end
+			@gardener = nil
+      @options[:threads] -= 1 unless @options[:threads] == 1; @options[:init_timeout] += 1
+		end
+		
   end
   
 end
