@@ -23,7 +23,7 @@ class TestSambalaMain < Test::Unit::TestCase
   
   def check_smbclient_presence
     answer = `smbclient --help`
-    assert(answer.include?('Usage'))
+    assert(answer.include?('Usage'), "No 'smbclient' tool was found on this computer,\nPlease install 'smbclient' and try again.")
   end
   
   def get_samba_param_from_input
@@ -44,17 +44,13 @@ class TestSambalaMain < Test::Unit::TestCase
   end
   
   def init_sambala
-    begin
-      @samba = Sambala.new( :domain => @domain,
-                            :host => @host, 
-                            :share => @share,
-                            :user => @user, 
-                            :password => @password, 
-                            :threads => 1)
-    rescue Sambala::SmbInitError
-      raise RuntimeError.exception("Sorry...  I couldn't initialise Sambala")
-    end
-    puts "Connection to #{@share.to_s} successfull,\nnow proceding with test:"
+    @samba = Sambala.new( :domain => @domain,
+                          :host => @host, 
+                          :share => @share,
+                          :user => @user, 
+                          :password => @password, 
+                          :threads => 4)
+    puts "Connection successfull,\nnow proceding with test:"
   end
   
   def check_ls
