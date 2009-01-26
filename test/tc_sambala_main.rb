@@ -2,6 +2,8 @@ $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 require 'test/unit'
 require 'sambala'
 
+TESTDIR = 'sambala_test'
+
 class TestSambalaMain < Test::Unit::TestCase
   
   def setup
@@ -11,7 +13,15 @@ class TestSambalaMain < Test::Unit::TestCase
   end
   
   def test_main
-    check_ls
+    ls_one = check_ls
+		check_mkdir(TESTDIR)
+		check_exist(TESTDIR)
+		# check_cd(TESTDIR)
+		# ls_two = check_ls
+		# assert(ls_one != ls_two)
+		# check_exist
+		# check_cd('..')
+		check_rmdir(TESTDIR)
   end
   
   def teardown
@@ -49,15 +59,40 @@ class TestSambalaMain < Test::Unit::TestCase
                           :share => @share,
                           :user => @user, 
                           :password => @password, 
-                          :threads => 4)
+                          :threads => 1)
     puts "Connection successfull,\nnow proceding with test:"
   end
   
   def check_ls
     result = @samba.ls
     assert_not_nil(result)
+		result_alias = @samba.dir
+    assert_not_nil(result)
+		assert(result == result_alias)
+		return result
   end
+
+	def check_cd(path)
+		cd = @samba.cd(:to => path)
+		assert_equal(true,cd)
+	end
   
+	def check_exist(path)
+		exist = @samba.exist?(:mask => path)
+		assert_equal(true,exist)
+	end
+	
+	def check_mkdir(path)
+		re = @samba.mkdir(:path => path)
+		assert_equal(true,re)
+	end
+	
+	def check_rmdir(path)
+		re = @samba.rmdir(:path => path)
+		assert_equal(true,re)
+	end
+	
+	
   
   
 end
