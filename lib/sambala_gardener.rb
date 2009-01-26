@@ -66,7 +66,7 @@ class Sambala
       init = []
       catch :gardener do
         4.times do |num|
-          init_gardener
+          init_gardener; sleep 1
 					begin
 						Timeout.timeout(2) { @init_status = @gardener.init_status }
 						init = @init_status
