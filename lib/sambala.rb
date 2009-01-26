@@ -97,7 +97,7 @@ class Sambala
   def del(opts={:mask => nil, :queue=>false})
     execute('del', opts[:mask], opts[:queue])[0]
   end
-  
+  alias rm del
   # The maexist? instance method is borrowed from Ruby File Class idiome.
   # It is used to test the presence of files or directories on the server
   # === Parameters
@@ -240,6 +240,10 @@ class Sambala
   def recurse
     execute_all('recurse' ,'')
   end
+
+	def rmdir(opts={:path=>nil,:queue=>false})
+		execute('rmdir' ,opts[:path], opts[:queue])[0]
+	end
   
   # The +volume+ method returns remote volume information.
   # === Parameters
