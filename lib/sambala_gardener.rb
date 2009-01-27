@@ -32,7 +32,6 @@ class Sambala
     # === Example
     #   result = execute_all('mask','match*')   # =>  true
     def execute_all(command,data)
-      sleep 1
       result = @gardener.seed_all("#{command} #{data}")
       bools = result.map { |row| row[:success] }
       bools.uniq.size == 1 ? true : false
@@ -100,10 +99,10 @@ class Sambala
             w.print "#{seed.sprout}\r"
             catch :result do
               loop do
-                r.expect(/.*\xD\xAsmb: \w*[\x5C]*\x3E.*/) do |text|
+                r.expect(/.*\xD\xAsmb: [\x5C]*\w*[\x5C]+\x3E.*/) do |text|
                   if text != nil
                     msg = text[0]
-                    
+										
                     msg.gsub!(/smb: \w*\x5C\x3E\s*$/, '')
                     msg.gsub!(/^\s*#{seed.sprout}/, '')
                     msg.lstrip!
