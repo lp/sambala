@@ -18,6 +18,24 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+Example:
+
+  samba = Sambala.new(  :domain   =>  'NTDOMAIN', 
+                      :host     =>  'sambaserver',
+                      :share    =>  'sambashare',
+                      :user     =>  'walrus', 
+                      :password =>  'eggman', 
+                      :threads  =>  2 )
+                      
+  samba.cd(:to => 'myfolder')   # =>  true
+  samba.put(:from => 'aLocalFile.txt')    # =>  [false, "aLocalFile.txt does not exist\r\n"]
+  
+
+For detailed documentation refer to the online ruby-doc:
+http://sambala.rubyforge.org/ruby-doc/
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 Copyright (c) 2008 Louis-Philippe Perron
 
 Permission is hereby granted, free of charge, to any person
