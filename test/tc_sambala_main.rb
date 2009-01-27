@@ -16,11 +16,11 @@ class TestSambalaMain < Test::Unit::TestCase
     ls_one = check_ls
 		check_mkdir(TESTDIR)
 		check_exist(TESTDIR)
-		# check_cd(TESTDIR)
-		# ls_two = check_ls
-		# assert(ls_one != ls_two)
+		check_cd(TESTDIR)
+		ls_two = check_ls
+		assert(ls_one != ls_two)
 		# check_exist
-		# check_cd('..')
+		check_cd('..')
 		check_rmdir(TESTDIR)
   end
   
