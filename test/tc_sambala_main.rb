@@ -28,7 +28,7 @@ class TestSambalaMain < Test::Unit::TestCase
   end
   
   def teardown
-		@samba.rmdir(:path => TESTDIR) if @samba.exist?(:mask => TESTDIR)
+		@samba.rmdir(TESTDIR) if @samba.exist?(TESTDIR)
     close = @samba.close
     assert(close)
 		Dir.rmdir(TESTDIR) if File.exist?(TESTDIR)
@@ -78,22 +78,22 @@ class TestSambalaMain < Test::Unit::TestCase
   end
 
 	def check_cd(path)
-		cd = @samba.cd(:to => path)
+		cd = @samba.cd(path)
 		assert_equal(true,cd)
 	end
   
 	def check_exist(path)
-		exist = @samba.exist?(:mask => path)
+		exist = @samba.exist?(path)
 		assert_equal(true,exist)
 	end
 	
 	def check_mkdir(path)
-		re = @samba.mkdir(:path => path)
+		re = @samba.mkdir(path)
 		assert_equal(true,re)
 	end
 	
 	def check_rmdir(path)
-		re = @samba.rmdir(:path => path)
+		re = @samba.rmdir(path)
 		assert_equal(true,re)
 	end
 	
@@ -103,7 +103,7 @@ class TestSambalaMain < Test::Unit::TestCase
 		after = @samba.local('ls')
 		assert(before != after)
 		
-		re = @samba.lcd(:to => TESTDIR)
+		re = @samba.lcd(TESTDIR)
 		assert_equal(true,re)
 		before2 = @samba.local('ls')
 		@samba.local("touch #{TESTFILE}")
@@ -123,14 +123,14 @@ class TestSambalaMain < Test::Unit::TestCase
 		assert_kind_of(Array,re)
 		assert_equal(true,re[0])
 		
-		re = @samba.del(:mask => TESTFILE)
+		re = @samba.del(TESTFILE)
 		assert_equal(true,re)
 		
 		after2_3 = @samba.local('ls')
 		assert(after2 == after2_3)
 		@samba.local("rm #{TESTFILE}")
 		
-		re = @samba.lcd(:to => '..')
+		re = @samba.lcd('..')
 		assert_equal(true,re)
 		@samba.local("rmdir #{TESTDIR}")
 		after = @samba.local('ls')
