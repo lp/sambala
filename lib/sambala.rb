@@ -244,14 +244,12 @@ class Sambala
 	end
   
   # The +volume+ method returns remote volume information.
-  # === Parameters
-  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
   # === Interactive Returns
   # * _string_ = containing +volume+ command results
   # === Example
   #   samba.volume  # => "Volume: |geminishare| serial number 0x6d723053"
-  def volume(opts={:queue=>false})
-    execute('volume' ,'', opts[:queue])[1]
+  def volume
+    execute('volume' ,'', false)[1]
   end
 
 	# The +local+ methods allow shell command execution on the local machine.
