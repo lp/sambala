@@ -2,7 +2,8 @@ $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 require 'test/unit'
 require 'sambala'
 
-TESTDIR = 'sambala_test'
+TESTFILE = 'sambala_test'
+TESTDIR = 'sambala_temp'
 
 class TestSambalaMain < Test::Unit::TestCase
   
@@ -17,16 +18,20 @@ class TestSambalaMain < Test::Unit::TestCase
 		check_mkdir(TESTDIR)
 		check_exist(TESTDIR)
 		check_cd(TESTDIR)
+		
 		ls_two = check_ls
 		assert(ls_one != ls_two)
+		check_lcd_put_get
 		# check_exist
 		check_cd('..')
 		check_rmdir(TESTDIR)
   end
   
   def teardown
+		@samba.rmdir(:path => TESTDIR) if @samba.exist?(:mask => TESTDIR)
     close = @samba.close
     assert(close)
+		Dir.rmdir(TESTDIR) if File.exist?(TESTDIR)
   end
   
   private
@@ -90,6 +95,22 @@ class TestSambalaMain < Test::Unit::TestCase
 	def check_rmdir(path)
 		re = @samba.rmdir(:path => path)
 		assert_equal(true,re)
+	end
+	
+	def check_lcd_put_get
+		before = @samba.local('ls')
+		@samba.local("mkdir #{TESTDIR}")
+		after = @samba.local('ls')
+		assert(before != after)
+		
+		re = @samba.lcd(:to => TESTDIR)
+		assert_equal(true,re)
+		
+		re = @samba.lcd(:to => '..')
+		assert_equal(true,re)
+		@samba.local("rmdir #{TESTDIR}")
+		after = @samba.local('ls')
+		assert(before = after)
 	end
 	
 	
