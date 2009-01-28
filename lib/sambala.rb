@@ -122,13 +122,13 @@ class Sambala
   
   # The +lcd+ instance method changes the current working directory on the local machine to the directory specified. 
   # === Parameters
-  # * :to = the path to change directory to
+  # * _to_ = the path to change directory to
   # === Interactive Returns
   # * _boolean_ = confirms if +cd+ operation completed successfully
   # === Example
-  #   samba.lcd(:to => 'aLocalFolder/anOtherFolder/')   # => true
-  def lcd(opts={:to => ''})
-		execute_all('lcd', opts[:to])
+  #   samba.lcd('aLocalFolder/anOtherFolder/')   # => true
+  def lcd(to='.')
+		execute_all('lcd', to)
   end
   
   # The +lowercase+ method toggles lowercasing of filenames for the get command.
