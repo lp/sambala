@@ -159,11 +159,11 @@ class Sambala
   # See man page for smbclient to get more on the details of operation
   # This method has no queue processing option
   # === Parameters
-  # * :mask = the matching filter
+  # * _mask_ = the matching filter
   # === Example
-  #   samba.mask(:mask => 'filter*')  # => true
-  def mask(opts={:mask => nil})
-    execute_all('mask' ,opts[:mask])
+  #   samba.mask('filter*')  # => true
+  def mask(mask)
+    execute_all('mask' ,mask)
   end
   
   # The +mget+ method copy all files matching :mask from the server to the client machine
