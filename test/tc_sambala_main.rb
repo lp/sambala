@@ -105,12 +105,36 @@ class TestSambalaMain < Test::Unit::TestCase
 		
 		re = @samba.lcd(:to => TESTDIR)
 		assert_equal(true,re)
+		before2 = @samba.local('ls')
+		@samba.local("touch #{TESTFILE}")
+		after2 = @samba.local('ls')
+		assert(before2 != after2)
+		
+		
+		re = @samba.put(:from => TESTFILE, :to => TESTFILE)
+		assert_kind_of(Array,re)
+		assert_equal(true,re[0])
+		
+		@samba.local("rm #{TESTFILE}")
+		after2_2 = @samba.local('ls')
+		assert(before2 == after2_2)
+		
+		re = @samba.get(:from => TESTFILE, :to => TESTFILE)
+		assert_kind_of(Array,re)
+		assert_equal(true,re[0])
+		
+		re = @samba.del(:mask => TESTFILE)
+		assert_equal(true,re)
+		
+		after2_3 = @samba.local('ls')
+		assert(after2 == after2_3)
+		@samba.local("rm #{TESTFILE}")
 		
 		re = @samba.lcd(:to => '..')
 		assert_equal(true,re)
 		@samba.local("rmdir #{TESTDIR}")
 		after = @samba.local('ls')
-		assert(before = after)
+		assert(before == after)
 	end
 	
 	
