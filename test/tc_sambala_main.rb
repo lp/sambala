@@ -4,6 +4,15 @@ require 'sambala'
 
 TESTFILE = 'sambala_test'
 TESTDIR = 'sambala_temp'
+WELCOME = "
+  .|'''.|                     '||              '||          
+  ||..  '   ....   .. .. ..    || ...   ....    ||   ....   
+   ''|||.  '' .||   || || ||   ||'  || '' .||   ||  '' .||  
+ .     '|| .|' ||   || || ||   ||    | .|' ||   ||  .|' ||  
+ |'....|'  '|..'|' .|| || ||.  '|...'  '|..'|' .||. '|..'|' 
+
+
+/////////////////////////////////////////////////////////////"
 
 class TestSambalaMain < Test::Unit::TestCase
   
@@ -42,6 +51,7 @@ class TestSambalaMain < Test::Unit::TestCase
   end
   
   def get_samba_param_from_input
+		puts WELCOME
     puts "I will need you to input some working Samba connection settings..."
     print "\n"; sleep 1
     print "host name or IP: "
