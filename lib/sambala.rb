@@ -62,13 +62,13 @@ class Sambala
 
   # The +cd+ instance method takes only one argument, the path to which you wish to change directory  
   # === Parameters
-  # * :to = the path to change directory to
+  # * _to_ = the path to change directory to
   # === Interactive Returns
   # * _boolean_ = confirms if +cd+ operation completed successfully
   # === Example
-  #   samba.cd(:to => 'aFolder/anOtherFolder/')   # =>  true
-  def cd(opts={:to => ''})
-		execute_all('cd', opts[:to])
+  #   samba.cd('aFolder/anOtherFolder/')   # =>  true
+  def cd(to='.')
+		execute_all('cd',to)
   end
   
   # The +du+ instance method does exactly what _du_ usually does: estimates file space usage.
