@@ -144,15 +144,14 @@ class Sambala
   
   # The method +ls+ or its alias _dir_, list the files and directories matching :mask in the current working directory on the smb server.
   # === Parameters
-  # * :mask = the mask matching the file to be listed inside the current working directory.
-  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
+  # * _mask_ = the mask matching the file to be listed inside the current working directory.
   # === Interactive Returns
   # * _string_ = containing +ls+ command results
   # === Example
   #   samba.ls  # =>  genpi.rb                            A       81  Mon Nov 17 22:12:40 2008
   #                     34923 blocks of size 2097152. 27407 blocks available
-  def ls(opts={:mask => nil, :queue=>false})
-    execute('ls' ,opts[:mask], opts[:queue])[1]
+  def ls(mask='')
+    execute('ls' ,mask, false)[1]
   end
   alias dir ls
   
