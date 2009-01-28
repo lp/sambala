@@ -83,14 +83,14 @@ class Sambala
   
   # The +del+ instance method delete files on smb shares
   # === Parameters
-  # * :mask = the mask matching the file to be deleted inside the current working directory.
-  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
+  # * _mask_ = the mask matching the file to be deleted inside the current working directory.
+  # * _queue_ = sets queue processing mode. Defaults to interactive mode when no option given.
   # === Interactive Returns
   # * _boolean_ = confirms if +del+ operation completed successfully
   # === Example
   #   samba.del(:mask => 'aFile')   # =>  true
-  def del(opts={:mask => nil, :queue=>false})
-    execute('del', opts[:mask], opts[:queue])[0]
+  def del(mask, queue=false)
+    execute('del', mask, queue)[0]
   end
   alias rm del
   # The exist? instance method is borrowed from Ruby File Class idiome.
