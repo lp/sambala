@@ -88,7 +88,7 @@ class Sambala
   # === Interactive Returns
   # * _boolean_ = confirms if +del+ operation completed successfully
   # === Example
-  #   samba.del(:mask => 'aFile')   # =>  true
+  #   samba.del('aFile')   # =>  true
   def del(mask, queue=false)
     execute('del', mask, queue)[0]
   end
@@ -96,14 +96,13 @@ class Sambala
   # The exist? instance method is borrowed from Ruby File Class idiome.
   # It is used to test the presence of files or directories on the server
   # === Parameters
-  # * :mask = the mask matching the file or directory to look for.
-  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
+  # * _mask_ = the mask matching the file or directory to look for.
   # === Interactive Returns
   # * _boolean_ = confirm the presence of a matching file or directory
   # === Example
-  #   samba.exist?(:mask => 'aFile')  # => true
-  def exist?(opts={:mask => nil, :queue => false})
-    execute('ls', opts[:mask], opts[:queue])[0]
+  #   samba.exist?('aFile')  # => true
+  def exist?(mask)
+    execute('ls', mask, false)[0]
   end
   
   # The +get+ instance method copy files from smb shares.
