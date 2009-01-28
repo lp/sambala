@@ -257,6 +257,17 @@ class Sambala
   def volume(opts={:queue=>false})
     execute('volume' ,'', opts[:queue])[1]
   end
+
+	# The +local+ methods allow shell command execution on the local machine.
+	# === Parameters
+	# * _command_ = the shell comand to be executed locally
+	# === Interactive Returns
+	# * _string_ = the normal return message of the command
+	# === Example
+	# 	samba.local('mkdir mydir')
+	def local(command)
+		execute('!', command, false)[1]
+	end
   
   # The +queue_results+ methods collect a done queue items results
   # === Example 
