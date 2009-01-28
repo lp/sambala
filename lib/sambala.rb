@@ -233,14 +233,14 @@ class Sambala
 
 	# The +rmdir+ method deletes the specified directory
 	# === Parameters
-	# * :path = the relative path to the directory to be deleted
-  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
+	# * _path_ = the relative path to the directory to be deleted
+  # * _queue_ = sets queue processing mode. Defaults to interactive mode when no option given.
   # === Interactive Returns
   # * _boolean_ = confirms if +rmdir+ operation completed successfully
   # === Example
-	# 	samba.rmdir(:path => 'mydir')		# => true
-	def rmdir(opts={:path=>nil,:queue=>false})
-		execute('rmdir' ,opts[:path], opts[:queue])[0]
+	# 	samba.rmdir('mydir')		# => true
+	def rmdir(path,queue=false)
+		execute('rmdir' , path, queue)[0]
 	end
   
   # The +volume+ method returns remote volume information.
