@@ -73,14 +73,14 @@ class Sambala
   
   # The +du+ instance does exactly what _du_ usually does: estimates file space usage.
   # === Parameters
-  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
+  # * _queue_ = sets queue processing mode. Defaults to interactive mode when no option given.
   # === Interactive Returns
   # * _string_ = +du+ command results
   # === Example
   #   puts samba.du   # =>  34923 blocks of size 2097152. 27407 blocks available
   #                       Total number of bytes: 59439077
-  def du(opts={:queue=>false})
-    execute('du', '', opts[:queue])[1]
+  def du(queue=false)
+    execute('du', '', queue)[1]
   end
   
   # The +del+ instance method delete files on smb shares
