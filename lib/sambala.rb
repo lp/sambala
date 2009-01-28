@@ -181,14 +181,14 @@ class Sambala
   
   # The method +mkdir+ or its alias _md_, creates a new directory on the server.
   # === Parameters
-  # * :path = the directory to create
-  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
+  # * _path_ = the directory to create
+  # * _queue_ = sets queue processing mode. Defaults to interactive mode when no option given.
   # === Interactive Returns
   # * _boolean_ = confirms if +mkdir+ operation completed successfully
   # === Example
-  #   samba.mkdir(:path => 'aFolder/aNewFolder')  # => true
-  def mkdir(opts={:path => '', :queue => false})
-    execute('mkdir' ,opts[:path], opts[:queue])[0]
+  #   samba.mkdir('aFolder/aNewFolder')  # => true
+  def mkdir(path, queue=false)
+    execute('mkdir' ,path, queue)[0]
   end
   alias md mkdir
   
