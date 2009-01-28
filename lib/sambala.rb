@@ -195,14 +195,14 @@ class Sambala
   # The +mput+ method copy all files matching :mask in the current working directory on the local machine to the server.
   # See man page for smbclient to get more on the details of operation
   # === Parameters
-  # * :mask = the file matching filter
-  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
+  # * _mask_ = the file matching filter
+  # * _queue_ = sets queue processing mode. Defaults to interactive mode when no option given.
   # === Interactive Returns
   # _array_ = [ _booleanSuccess_, _mputResultMessage_ ]
   # === Example
-  #   samba.mput(:mask => 'file*')  # =>  [true, "putting file \\file_new.txt of size 1004 as file_new.txt (65.4 kb/s) (average 65.4 kb/s)\r\n"]
-  def mput(opts={:mask => nil, :queue => false})
-    execute('mput' ,opts[:mask], opts[:queue])
+  #   samba.mput('file*')  # =>  [true, "putting file \\file_new.txt of size 1004 as file_new.txt (65.4 kb/s) (average 65.4 kb/s)\r\n"]
+  def mput(mask, queue=false)
+    execute('mput' ,mask, queue)
   end
   
   # The +put+ instance method copy files to smb shares.
