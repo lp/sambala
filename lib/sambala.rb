@@ -169,14 +169,14 @@ class Sambala
   # The +mget+ method copy all files matching :mask from the server to the client machine
   # See man page for smbclient to get more on the details of operation
   # === Parameters
-  # * :mask = the file matching filter
-  # * :queue = sets queue processing mode. Defaults to interactive mode when no option given.
+  # * _mask_ = the file matching filter
+  # * _queue_ = sets queue processing mode. Defaults to interactive mode when no option given.
   # === Interactive Returns
   # _array_ = [ _booleanSuccess_, _mgetResultMessage_ ]
   # === Example
-  #   samba.mget(:mask => 'file*')  # => [true, "getting file \\file_new.txt of size 3877 as file_new.txt (99.6 kb/s) (average 89.9 kb/s)\r\n"]
-  def mget(opts={:mask => nil, :queue => false})
-    execute('mget' ,opts[:mask], opts[:queue])
+  #   samba.mget('file*')  # => [true, "getting file \\file_new.txt of size 3877 as file_new.txt (99.6 kb/s) (average 89.9 kb/s)\r\n"]
+  def mget(mask,queue=false)
+    execute('mget' ,mask, queue)
   end
   
   # The method +mkdir+ or its alias _md_, creates a new directory on the server.
