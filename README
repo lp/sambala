@@ -27,7 +27,7 @@ Example:
                       :password =>  'eggman', 
                       :threads  =>  2 )
                       
-  samba.cd(:to => 'myfolder')   # =>  true
+  samba.cd('myfolder')   # =>  true
   samba.put(:from => 'aLocalFile.txt')    # =>  [false, "aLocalFile.txt does not exist\r\n"]
   
 
