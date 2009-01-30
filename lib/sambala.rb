@@ -20,6 +20,25 @@
 # with the +queue_results+ method, returning an array containing your commands and their respective results.
 #
 # When in doubt about what each command does, please refer to smbclient man page for help.
+# ///////////////////////////////////////////////////////////////////////////////////////
+# 
+# Example:
+# 
+#   samba = Sambala.new(  :domain   =>  'NTDOMAIN', 
+#                       :host     =>  'sambaserver',
+#                       :share    =>  'sambashare',
+#                       :user     =>  'walrus', 
+#                       :password =>  'eggman', 
+#                       :threads  =>  2 )
+#                       
+#   samba.cd('myfolder')   # =>  true
+#   samba.put(:from => 'aLocalFile.txt')    # =>  [false, "aLocalFile.txt does not exist\r\n"]
+#   
+# 
+# For detailed documentation refer to the online ruby-doc:
+# http://sambala.rubyforge.org/ruby-doc/
+# 
+# ///////////////////////////////////////////////////////////////////////////////////////
 # 
 # Author:: lp (mailto:lp@spiralix.org)
 # Copyright:: 2008 Louis-Philippe Perron - Released under the terms of the MIT license
