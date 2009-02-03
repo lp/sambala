@@ -77,6 +77,7 @@ class Sambala
         end
         raise SmbInitError.exception("Couldn't set smbclient properly")
       end
+			@posix_support = posix?(@init_status[0][:message])
     end
 
     # The +init_gardener+ method initialize a gardener class object
@@ -136,6 +137,14 @@ class Sambala
 			end
 			@gardener = nil
       @options[:threads] -= 1 unless @options[:threads] == 1; @options[:init_timeout] += 1
+		end
+		
+		def posix?(init_message)
+			if init_message =~ /windows/i
+				return false
+			else
+				return true
+			end
 		end
 		
   end
