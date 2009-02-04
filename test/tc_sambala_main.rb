@@ -4,7 +4,7 @@ require 'sambala'
 
 TESTFILE = 'sambala_test'
 TESTDIR = 'sambala_temp'
-WELCOME = "
+WELCOME = <<TITLE
   .|'''.|                     '||              '||          
   ||..  '   ....   .. .. ..    || ...   ....    ||   ....   
    ''|||.  '' .||   || || ||   ||'  || '' .||   ||  '' .||  
@@ -12,7 +12,8 @@ WELCOME = "
  |'....|'  '|..'|' .|| || ||.  '|...'  '|..'|' .||. '|..'|' 
 
 
-/////////////////////////////////////////////////////////////"
+/////////////////////////////////////////////////////////////
+TITLE
 
 class TestSambalaMain < Test::Unit::TestCase
   
@@ -31,7 +32,7 @@ class TestSambalaMain < Test::Unit::TestCase
 		ls_two = check_ls
 		assert(ls_one != ls_two)
 		check_lcd_put_get
-		# check_exist
+
 		check_cd('..')
 		check_rmdir(TESTDIR)
   end
@@ -124,6 +125,8 @@ class TestSambalaMain < Test::Unit::TestCase
 		re = @samba.put(:from => TESTFILE, :to => TESTFILE)
 		assert_kind_of(Array,re)
 		assert_equal(true,re[0])
+		
+		check_exist(TESTFILE)
 		
 		@samba.local("rm #{TESTFILE}")
 		after2_2 = @samba.local('ls')
