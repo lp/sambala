@@ -85,9 +85,11 @@ class Sambala
           	init.map! { |result| result[:success] }
           	throw :gardener if init.uniq.size == 1 and init[0] == true
 					rescue Timeout::Error
+						$! = "Slugish Network or Server?"
 					end
 					kill_gardener_and_incr
         end
+				$! = "All Attemps Failed, Gardener could not be initiated" if $!.nil?
         raise SmbInitError.exception("Couldn't set smbclient properly (#{$!.to_s})")
       end
 			@posix_support = posix?(@init_status[0][:message])
