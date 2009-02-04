@@ -13,6 +13,14 @@ class Sambala
   module Gardener
 		require 'timeout'
     
+		def clean_path(path)
+			if @posix_support
+				return path
+			else
+				return path.gsub(/\//,'\\')
+			end
+		end
+		
     # The +execute+ method splits the execution according to the operation mode: queue or interactive.
     # === Parameters
     # * _command_ = the command as a string
@@ -68,14 +76,14 @@ class Sambala
           init_gardener; sleep 1
 					begin
 						Timeout.timeout(2) { @init_status = @gardener.init_status }
-						init = @init_status
+						init = Array.new(@init_status)
           	init.map! { |result| result[:success] }
           	throw :gardener if init.uniq.size == 1 and init[0] == true
 					rescue Timeout::Error
 					end
 					kill_gardener_and_incr
         end
-        raise SmbInitError.exception("Couldn't set smbclient properly")
+        raise SmbInitError.exception("Couldn't set smbclient properly (#{$!.to_s})")
       end
 			@posix_support = posix?(@init_status[0][:message])
     end
