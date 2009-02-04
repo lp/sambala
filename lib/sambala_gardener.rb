@@ -13,6 +13,11 @@ class Sambala
   module Gardener
 		require 'timeout'
     
+		# The +clean_path+ method cleans the slashes, as backslashes, for the Windows servers.
+		# === Parameters
+		# * _path_ = the path to be cleaned
+		# === Example
+		# 	cleaned = clean_path('/My/Path/')		# => '\My\Path'
 		def clean_path(path)
 			if @posix_support
 				return path
