@@ -75,7 +75,7 @@ class Sambala
       @options = options; gardener_ok
     rescue
       @gardener.close unless @gardener.nil? || @gardener.class != 'Gardener'
-      raise RuntimeError.exception("Unknown Process Failed!!")
+      raise RuntimeError.exception("Unknown Process Failed!! (#{$!.to_s})")
     end
   end
 
@@ -87,7 +87,7 @@ class Sambala
   # === Example
   #   samba.cd('aFolder/anOtherFolder/')   # =>  true
   def cd(to='.')
-		execute_all('cd',to)
+		execute_all('cd',clean_path(to))
   end
   
   # The +du+ instance method does exactly what _du_ usually does: estimates file space usage.
@@ -136,7 +136,7 @@ class Sambala
   #   samba.get(:from => 'aFile.txt')   # => [true, "getting file \\aFile.txt.rb of size 3877 as test.rb (99.6 kb/s) (average 89.9 kb/s)\r\n"]
   def get(opts={:from => nil, :to => nil, :queue => false})
     opts[:to].nil? ? strng = opts[:from] : strng = opts[:from] + ' ' + opts[:to]
-    execute('get', strng, opts[:queue])
+    execute('get', clean_path(strng), opts[:queue])
   end
   
   # The +lcd+ instance method changes the current working directory on the local machine to the directory specified. 
@@ -147,7 +147,7 @@ class Sambala
   # === Example
   #   samba.lcd('aLocalFolder/anOtherFolder/')   # => true
   def lcd(to='.')
-		execute_all('lcd', to)
+		execute_all('lcd', clean_path(to))
   end
   
   # The +lowercase+ method toggles lowercasing of filenames for the get command.
@@ -207,7 +207,7 @@ class Sambala
   # === Example
   #   samba.mkdir('aFolder/aNewFolder')  # => true
   def mkdir(path, queue=false)
-    execute('mkdir' ,path, queue)[0]
+    execute('mkdir' , clean_path(path), queue)[0]
   end
   alias md mkdir
   
@@ -237,7 +237,7 @@ class Sambala
 
   def put(opts={:from => nil, :to => nil, :queue => false})
     opts[:to].nil? ? strng = opts[:from] : strng = opts[:from] + ' ' + opts[:to]
-    execute('put' ,strng, opts[:queue])
+    execute('put' , clean_path(strng), opts[:queue])
   end
   
   # The +recurse+ method toggles directory recursion
@@ -259,7 +259,7 @@ class Sambala
   # === Example
 	# 	samba.rmdir('mydir')		# => true
 	def rmdir(path,queue=false)
-		execute('rmdir' , path, queue)[0]
+		execute('rmdir' , clean_path(path), queue)[0]
 	end
   
   # The +volume+ method returns remote volume information.
