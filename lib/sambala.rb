@@ -70,7 +70,8 @@ class Sambala
   #                       :threads  =>  2 )
   def initialize(options={:domain => '', :host => '', :share => '', :user => '', :password => '', :threads => 1})
     begin
-      options[:init_timeout] = options[:threads] = 4 if options[:threads] > 4
+      options[:threads] = 4 if options[:threads] > 4
+      options[:init_timeout] = options[:threads]
       @options = options; gardener_ok
     rescue
       @gardener.close unless @gardener.nil? || @gardener.class != 'Gardener'
