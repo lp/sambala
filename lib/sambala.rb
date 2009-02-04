@@ -70,8 +70,7 @@ class Sambala
   #                       :threads  =>  2 )
   def initialize(options={:domain => '', :host => '', :share => '', :user => '', :password => '', :threads => 1})
     begin
-      options[:threads] = 4 if options[:threads] > 4
-      options[:init_timeout] = options[:threads] * 1
+      options[:init_timeout] = options[:threads] = 4 if options[:threads] > 4
       @options = options; gardener_ok
     rescue
       @gardener.close unless @gardener.nil? || @gardener.class != 'Gardener'
@@ -135,8 +134,8 @@ class Sambala
   # === Example
   #   samba.get(:from => 'aFile.txt')   # => [true, "getting file \\aFile.txt.rb of size 3877 as test.rb (99.6 kb/s) (average 89.9 kb/s)\r\n"]
   def get(opts={:from => nil, :to => nil, :queue => false})
-    opts[:to].nil? ? strng = opts[:from] : strng = opts[:from] + ' ' + opts[:to]
-    execute('get', clean_path(strng), opts[:queue])
+    opts[:to].nil? ? strng = opts[:from] : strng = clean_path(opts[:from]) + ' ' + opts[:to]
+    execute('get', strng, opts[:queue])
   end
   
   # The +lcd+ instance method changes the current working directory on the local machine to the directory specified. 
@@ -147,7 +146,7 @@ class Sambala
   # === Example
   #   samba.lcd('aLocalFolder/anOtherFolder/')   # => true
   def lcd(to='.')
-		execute_all('lcd', clean_path(to))
+		execute_all('lcd', to)
   end
   
   # The +lowercase+ method toggles lowercasing of filenames for the get command.
@@ -236,8 +235,8 @@ class Sambala
   #   samba.put(:from => 'aLocalFile.txt')   # =>  [false, "aLocalFile.txt does not exist\r\n"]
 
   def put(opts={:from => nil, :to => nil, :queue => false})
-    opts[:to].nil? ? strng = opts[:from] : strng = opts[:from] + ' ' + opts[:to]
-    execute('put' , clean_path(strng), opts[:queue])
+    opts[:to].nil? ? strng = opts[:from] : strng = opts[:from] + ' ' + clean_path(opts[:to])
+    execute('put' , strng, opts[:queue])
   end
   
   # The +recurse+ method toggles directory recursion
