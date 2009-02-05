@@ -282,7 +282,7 @@ class Sambala
 		execute('!', command, false)[1]
 	end
   
-  # The +queue_results+ methods collect a done queue items results
+  # The +queue_results+ methods wait for all queued items to finish and returns them.
   # === Example 
   #   result = samba.queue_results
   def queue_results
