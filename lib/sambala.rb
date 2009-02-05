@@ -298,6 +298,10 @@ class Sambala
 		@gardener.growth(:empty)
 	end
 	
+	def queue_done?
+		@gardener.growth(:finished)
+	end
+	
   # The +queue_results+ methods wait for all queued items to finish and returns them.
   # === Example 
   #   result = samba.queue_results
