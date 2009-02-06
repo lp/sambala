@@ -291,14 +291,14 @@ class Sambala
 	
 	# The +queue_processing+ method returns an array containing the tasks actually processing
 	# === Example
-	# 	samba.queue_processing		# => [{:id => 1, :seed => "put myFile", :success => false, :message => "myFile does not exist"}]
+	# 	samba.queue_processing		# => [[1, false, "put myFile", "myFile does not exist"],[2, true, "put lib/sambala.rb sambala.rb", "putting file lib/sambala.rb as \sambala.rb (83.5 kb/s) (average 83.5 kb/s)"]]
 	def queue_processing
-		@gardener.harvest(:sprout)
+		parse_results(@gardener.harvest(:sprout))
 	end
 	
 	# The +queue_completed+ method returns an array containing the task that have completed
 	def queue_completed
-		@gardener.harvest(:crop)
+		parse_results(@gardener.harvest(:crop))
 	end
 	
 	def queue_empty?
@@ -313,8 +313,7 @@ class Sambala
   # === Example 
   #   result = samba.queue_results
   def queue_results
-    crop = @gardener.harvest(:full_crop)
-    crop.map! { |result| [ result[:success], result[:seed], result[:message] ]  }
+    parse_results(@gardener.harvest(:full_crop))
   end
   
   # The +progress+ method returns a progress ratio indicator from 0.00 to 1.00
