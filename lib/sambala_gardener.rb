@@ -71,6 +71,11 @@ class Sambala
     def exec_queue(command,data)
       @gardener.seed("#{command} #{data}").integer? ? [true,true] : [false,false]
     end
+		
+		# The +parse_results+ method map the gardener's return hash values to an array
+		def parse_results(results)
+			results.map { |result| [result[:id], result[:success], result[:seed], result[:message]] }
+		end
     
     # The +gardener_ok+ method does the +init_gardener+ invocation, degrading the options parameters until
     # it initializes, or raise SmbInitError exception after 4 try.
