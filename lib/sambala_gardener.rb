@@ -67,9 +67,10 @@ class Sambala
     # * _command_ = the command as a string
     # * _data_ = the command argument as a string
     # === Example
-    #   result = exec_queue('get','aFile.txt')  # => [true,true]
+    #   result = exec_queue('get','aFile.txt')  # => [true,1]
     def exec_queue(command,data)
-      @gardener.seed("#{command} #{data}").integer? ? [true,true] : [false,false]
+      result = @gardener.seed("#{command} #{data}")
+			result.integer? ? [true,result] : [false,result]
     end
 		
 		# The +parse_results+ method map the gardener's return hash values to an array
