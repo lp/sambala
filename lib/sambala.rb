@@ -282,15 +282,22 @@ class Sambala
 		execute('!', command, false)[1]
 	end
   
+	# The +queue_waiting+ method returns the number of waiting task in queue
+	# === Example
+	# 	samba.queue_waiting		# => 3
 	def queue_waiting
 		@gardener.growth(:seed)
 	end
 	
+	# The +queue_processing+ method returns an array containing the tasks actually processing
+	# === Example
+	# 	samba.queue_processing		# => [{:id => 1, :seed => "put myFile", :success => false, :message => "myFile does not exist"}]
 	def queue_processing
 		@gardener.harvest(:sprout)
 	end
 	
-	def queue_crops
+	# The +queue_completed+ method returns an array containing the task that have completed
+	def queue_completed
 		@gardener.harvest(:crop)
 	end
 	
