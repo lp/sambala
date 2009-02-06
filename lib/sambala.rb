@@ -301,10 +301,16 @@ class Sambala
 		parse_results(@gardener.harvest(:crop))
 	end
 	
+	# The +queue_empty?+ method return true if there are no jobs in queue
+	# === Example
+	# 	samba.queue_empty?		# false
 	def queue_empty?
 		@gardener.growth(:empty)
 	end
 	
+	# The queue_done? method return true if all jobs have finished processing
+	# === Example
+	# 	samba.queue_done? 	# true
 	def queue_done?
 		@gardener.growth(:finished)
 	end
