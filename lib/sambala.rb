@@ -291,9 +291,10 @@ class Sambala
 	
 	# The +queue_processing+ method returns an array containing the tasks actually processing
 	# === Example
-	# 	samba.queue_processing		# => [[1, false, "put myFile", "myFile does not exist"],[2, true, "put lib/sambala.rb sambala.rb", "putting file lib/sambala.rb as \sambala.rb (83.5 kb/s) (average 83.5 kb/s)"]]
+	# 	samba.queue_processing		# => [[1, "put myFile"],[2, "put lib/sambala.rb sambala.rb"]]
 	def queue_processing
-		parse_results(@gardener.harvest(:sprout))
+		results = @gardener.harvest(:sprout)
+		results.map { |result| [result[:id], result[:seed]] }
 	end
 	
 	# The +queue_completed+ method returns an array containing the task that have completed
