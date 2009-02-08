@@ -105,46 +105,62 @@ class Sambala
     # The +init_gardener+ method initialize a gardener class object
     def init_gardener
       @gardener = Abundance.gardener(:rows => @options[:threads], :init_timeout => @options[:init_timeout]) do
-        PTY.spawn("smbclient //#{@options[:host]}/#{@options[:share]} #{@options[:password]} -W #{@options[:domain]} -U #{@options[:user]}") do |r,w,pid|
-          w.sync = true
-          $expect_verbose = false
-          catch :init do
-            loop do
-              r.expect(/.*\xD\xAsmb:[ \x5C]*\x3E.*/) do |text|
-                if text != nil
-                  text[0] =~ /.*Server=.*/i ? Abundance.init_status(true,"#{text.inspect}") : Abundance.init_status(false,"#{text.inspect}")
-                  throw :init
-                end
-              end
-            end
-          end
-          Abundance.grow do |seed|
-            w.print "#{seed.sprout}\r"
-            catch :result do
-              loop do
-                r.expect(/.*\xD\xAsmb: [\x5C]*\w*[\x5C]+\x3E.*/) do |text|
-                  if text != nil
-                    msg = text[0]
-										
-                    msg.gsub!(/smb: \w*\x5C\x3E\s*$/, '')
-                    msg.gsub!(/^\s*#{seed.sprout}/, '')
-                    msg.lstrip!
-                    
-                    success = case seed.sprout
-                      when /^put/
-                        msg['putting'].nil? ? false : true
-                      else
-                        msg['NT_STATUS'].nil? ? true : false
-                      end
-                    
-                    seed.crop(success, msg)
-                    throw :result
-                  end
-                end
-              end
-            end
-          end
-        end
+      	rescued = 0
+				begin
+					PTY.spawn("smbclient //#{@options[:host]}/#{@options[:share]} #{@options[:password]} -W #{@options[:domain]} -U #{@options[:user]}") do |r,w,pid|
+	          w.sync = true
+	          $expect_verbose = false
+	          catch :init do
+	            loop do
+	              r.expect(/.*\xD\xAsmb:[ \x5C]*\x3E.*/) do |text|
+	                if text != nil
+	                  text[0] =~ /.*Server=.*/i ? Abundance.init_status(true,"#{text.inspect}") : Abundance.init_status(false,"#{text.inspect}")
+	                  throw :init
+	                end
+	              end
+	            end
+	          end
+	          Abundance.grow do |seed|
+	            w.print "#{seed.sprout}\r"
+	            catch :result do
+	              loop do
+	                r.expect(/.*\xD\xAsmb: [\x5C]*\w*[\x5C]+\x3E.*/) do |text|
+	                  if text != nil
+	                    msg = text[0]
+
+	                    msg.gsub!(/smb: \w*\x5C\x3E\s*$/, '')
+	                    msg.gsub!(/^\s*#{seed.sprout}/, '')
+	                    msg.lstrip!
+
+	                    success = case seed.sprout
+	                      when /^put/
+	                        msg['putting'].nil? ? false : true
+	                      else
+	                        if msg['NT_STATUS']
+														false
+													elsif msg['timed out']
+														raise SmbTimeoutError.exception("Server Timed out, attempting rescue (#{msg})")
+													else
+														true
+													end
+	                      end
+
+	                    seed.crop(success, msg)
+	                    throw :result
+	                  end
+	                end
+	              end
+	            end
+	          end
+	        end
+				rescue Sambala::SmbTimeoutError
+					rescued += 1
+					if rescued < 11
+						retry
+					else
+						raise RuntimeError.exception("Too many Samba Server Timeout: (#{$!.to_s})")
+					end
+				end
       end
     end
 		
