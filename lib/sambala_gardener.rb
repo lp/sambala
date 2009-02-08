@@ -1,5 +1,6 @@
 class Sambala
   class SmbInitError < StandardError; end
+	class SmbTimeoutError < StandardError; end
   # The Sambala::Gardener module bings Abundance into Sambala.
   # A bunch of mixins used inside Sambala to access Abundance Non-Blocking Threading.
   # These methods are a higher level abstraction of Abundance methods,
