@@ -47,6 +47,7 @@ class Sambala
     #   result = execute_all('mask','match*')   # =>  true
     def execute_all(command,data)
       result = @gardener.seed_all("#{command} #{data}")
+			$log_sambala.debug("execute_all result") {"#{result.inspect}"}
       bools = result.map { |row| row[:success] }
       bools.uniq.size == 1 ? true : false
     end
@@ -60,6 +61,7 @@ class Sambala
     def exec_interactive(command,data)
       id = @gardener.seed("#{command} #{data}")
       result = @gardener.harvest(:one,id)
+			$log_sambala.debug("exec_interactive result") {"#{result.inspect}"}
       return result[:success], result[:message]
     end
 
@@ -71,6 +73,7 @@ class Sambala
     #   result = exec_queue('get','aFile.txt')  # => [true,1]
     def exec_queue(command,data)
       result = @gardener.seed("#{command} #{data}")
+			$log_sambala.debug("exec_queue result") {"#{result.inspect}"}
 			result.integer? ? [true,result] : [false,result]
     end
 		
@@ -92,7 +95,7 @@ class Sambala
           	init.map! { |result| result[:success] }
           	throw :gardener if init.uniq.size == 1 and init[0] == true
 					rescue Timeout::Error
-						$log_sambala.fatal("Slugish Network or Server?")
+						$log_sambala.error("Having problem setting the smb client... TRY #{num}")
 					end
 					kill_gardener_and_incr
         end
@@ -105,61 +108,63 @@ class Sambala
     # The +init_gardener+ method initialize a gardener class object
     def init_gardener
       @gardener = Abundance.gardener(:rows => @options[:threads], :init_timeout => @options[:init_timeout]) do
-      	
-				# loop do
-					# catch :restart do
-						# $log_sambala.debug("smbclient PTY...") {"starting..."}
-						PTY.spawn("smbclient //#{@options[:host]}/#{@options[:share]} #{@options[:password]} -W #{@options[:domain]} -U #{@options[:user]}") do |r,w,pid|
-		          w.sync = true
-		          $expect_verbose = false
-		          catch :init do
-		            loop do
-		              r.expect(/.*\xD\xAsmb:[ \x5C]*\x3E.*/) do |text|
-		                if text != nil
-		                  text[0] =~ /.*Server=.*/i ? Abundance.init_status(true,"#{text.inspect}") : Abundance.init_status(false,"#{text.inspect}")
-		                  throw :init
-		                end
-		              end
-		            end
-		          end
-		          Abundance.grow do |seed|
-		            w.print "#{seed.sprout}\r"; $log_sambala.debug("smbclient") {"sprout: -- #{seed.sprout} --"}
-		            catch :result do
-		              loop do
-		                r.expect(/.*\xD\xAsmb: [\x5C]*\w*[\x5C]+\x3E.*/) do |text|
-											$log_sambala.debug("smbclient") {"expect: -- #{text} --"}
-		                  if text != nil
-		                    msg = text[0]
-												
-		                    msg.gsub!(/smb: \w*\x5C\x3E\s*$/, '')
-		                    msg.gsub!(/^\s*#{seed.sprout}/, '')
-		                    msg.lstrip!; $log_sambala.debug("smbclient") {"msg: -- #{msg} --"}
-
-		                    success = case seed.sprout
-		                      when /^put/
-		                        msg['putting'].nil? ? false : true
-		                      else
-		                        if msg['NT_STATUS']
-															false
-														elsif msg['timed out'] || msg['Server stopped']
-															throw :restart
-														else
-															true
-														end
-		                      end
-
-		                    seed.crop(success, msg)
-		                    throw :result
-		                  end
-		                end
-		              end
-		            end
-		          end
-		        end
-		
-					# end
-				# end
 				
+				$log_sambala.debug("smbclient PTY...") {"starting..."}
+				PTY.spawn("smbclient //#{@options[:host]}/#{@options[:share]} #{@options[:password]} -W #{@options[:domain]} -U #{@options[:user]}") do |r,w,pid|
+          w.sync = true
+          $expect_verbose = false
+          catch :init do
+            loop do
+              r.expect(/.*\xD\xAsmb:[ \x5C]*\x3E.*/) do |text|
+                if text != nil
+                  text[0] =~ /.*Server=.*/i ? Abundance.init_status(true,"#{text.inspect}") : Abundance.init_status(false,"#{text.inspect}")
+                  throw :init
+                end
+              end
+            end
+          end
+          Abundance.grow do |seed|
+            w.print "#{seed.sprout}\r"; $log_sambala.debug("smbclient") {"sprout: -- #{seed.sprout} --"}
+            catch :result do
+							iter = 1
+              loop do
+                r.expect(/.*\xD\xAsmb: [\x5C]*\w*[\x5C]+\x3E.*/) do |text|
+									$log_sambala.debug("smbclient") {"expect: -- #{text} --"}
+                  if text != nil
+                    msg = text[0]
+										
+                    msg.gsub!(/smb: \w*\x5C\x3E\s*$/, '')
+                    msg.gsub!(/^\s*#{seed.sprout}/, '')
+                    msg.lstrip!; $log_sambala.debug("smbclient") {"msg: -- #{msg} --"}
+
+                    success = case seed.sprout
+                      when /^put/
+                        msg['putting'].nil? ? false : true
+                      else
+                        if msg['NT_STATUS']
+													false
+												elsif msg['timed out'] || msg['Server stopped']
+													false
+												else
+													true
+												end
+                      end
+
+                    seed.crop(success, msg)
+                    throw :result
+									elsif iter > 20
+										$log_sambala.warn("Failed to #{seed.sprout}")
+										seed.crop(false, "Failed to #{seed.sprout}")
+										throw :result
+									else
+										iter += 1
+                  end
+                end
+              end
+            end
+          end
+        end
+
       end
     end
 		
