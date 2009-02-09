@@ -92,11 +92,11 @@ class Sambala
           	init.map! { |result| result[:success] }
           	throw :gardener if init.uniq.size == 1 and init[0] == true
 					rescue Timeout::Error
-						$! = "Slugish Network or Server?"
+						$log_sambala.fatal("Slugish Network or Server?")
 					end
 					kill_gardener_and_incr
         end
-				$! = "All Attemps Failed, Gardener could not be initiated" if $!.nil?
+				$log_sambala.fatal("All Attemps Failed, Gardener could not be initiated")
         raise SmbInitError.exception("Couldn't set smbclient properly (#{$!.to_s})")
       end
 			@posix_support = posix?(@init_status[0][:message])
@@ -106,9 +106,9 @@ class Sambala
     def init_gardener
       @gardener = Abundance.gardener(:rows => @options[:threads], :init_timeout => @options[:init_timeout]) do
       	
-				loop do
-					catch :restart do
-						
+				# loop do
+					# catch :restart do
+						# $log_sambala.debug("smbclient PTY...") {"starting..."}
 						PTY.spawn("smbclient //#{@options[:host]}/#{@options[:share]} #{@options[:password]} -W #{@options[:domain]} -U #{@options[:user]}") do |r,w,pid|
 		          w.sync = true
 		          $expect_verbose = false
@@ -123,16 +123,17 @@ class Sambala
 		            end
 		          end
 		          Abundance.grow do |seed|
-		            w.print "#{seed.sprout}\r"
+		            w.print "#{seed.sprout}\r"; $log_sambala.debug("smbclient") {"sprout: -- #{seed.sprout} --"}
 		            catch :result do
 		              loop do
 		                r.expect(/.*\xD\xAsmb: [\x5C]*\w*[\x5C]+\x3E.*/) do |text|
+											$log_sambala.debug("smbclient") {"expect: -- #{text} --"}
 		                  if text != nil
 		                    msg = text[0]
-
+												
 		                    msg.gsub!(/smb: \w*\x5C\x3E\s*$/, '')
 		                    msg.gsub!(/^\s*#{seed.sprout}/, '')
-		                    msg.lstrip!
+		                    msg.lstrip!; $log_sambala.debug("smbclient") {"msg: -- #{msg} --"}
 
 		                    success = case seed.sprout
 		                      when /^put/
@@ -156,8 +157,8 @@ class Sambala
 		          end
 		        end
 		
-					end
-				end
+					# end
+				# end
 				
       end
     end
