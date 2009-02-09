@@ -1,10 +1,10 @@
 $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
-# require 'FileUtils'
+require 'logger'
 require 'test/unit'
 require 'sambala'
 
 TESTFILE = 'sambala_test'
-TESTDIR = 'sambala_temp'
+TESTDIR = 'sambala_test_dir'
 WELCOME = <<TITLE
   .|'''.|                     '||              '||          
   ||..  '   ....   .. .. ..    || ...   ....    ||   ....   
@@ -15,11 +15,18 @@ WELCOME = <<TITLE
 
 /////////////////////////////////////////////////////////////
 TITLE
-THREADS = 1
+THREADS = 4
+
+if ARGV[0].nil? 
+	LOG_LEVEL = :warn
+else
+	LOG_LEVEL = ARGV[0].to_sym
+end
 
 class TestSambalaMain < Test::Unit::TestCase
   
   def setup
+		setup_logger(STDERR,LOG_LEVEL)
     check_smbclient_presence
     get_samba_param_from_input
     init_sambala
@@ -28,6 +35,7 @@ class TestSambalaMain < Test::Unit::TestCase
   end
   
   def test_main
+		@log_test.info("Testing sample SMB operations...")
     ls_one = check_ls
 		check_mkdir(TESTDIR)
 		check_exist(TESTDIR)
@@ -35,7 +43,9 @@ class TestSambalaMain < Test::Unit::TestCase
 		
 		ls_two = check_ls
 		assert(ls_one != ls_two)
-		check_lcd_put_get_queue
+		
+		check_lcd_put_get
+		check_queue
 
 		check_cd('..')
 		check_rmdir(TESTDIR)
@@ -43,17 +53,38 @@ class TestSambalaMain < Test::Unit::TestCase
   
   def teardown
 		back_to_marker
-		puts "Tearing Down!!!"
+		@log_test.info("All Test Done!!! Tearing Down!!!")
 		@samba.rmdir(TESTDIR).to_s if @samba.exist?(TESTDIR)
-		puts "remote directory clean"
+		@log_test.debug("remote directory clean")
     close = @samba.close
     assert(close)
-		puts "samba client closed"
+		@log_test.debug("samba client closed")
 		FileUtils.remove_dir(TESTDIR) if File.exist?(TESTDIR)
-		puts "local directory clean"
+		@log_test.debug("local directory clean")
+		@log_test.close
+		puts "\nBEWARE, if test fails you may have to clean up your server and the test directory,\na folder named #{TESTDIR} may be left after exiting... Sorry!"
   end
   
   private
+
+	def setup_logger(out,level)
+		Sambala::log_level = level
+		@log_test = Logger.new(out)
+		case level
+		when :debug
+			@log_test.level = Logger::DEBUG
+		when :info
+			@log_test.level = Logger::INFO
+		when :warn
+			@log_test.level = Logger::WARN
+		when :error
+			@log_test.level = Logger::ERROR
+		when :fatal
+			@log_test.level = Logger::FATAL
+		else
+			@log_test.level = Logger::UNKNOWN
+		end
+	end
 
 	def put_marker
 		result = @samba.put(:from => 'test/' + File.basename(__FILE__), :to => File.basename(__FILE__))
@@ -102,8 +133,7 @@ class TestSambalaMain < Test::Unit::TestCase
     result = @samba.ls
     assert_not_nil(result)
 		result_alias = @samba.dir
-    assert_not_nil(result)
-		assert(result == result_alias)
+    assert_not_nil(result_alias)
 		return result
   end
 
@@ -127,63 +157,65 @@ class TestSambalaMain < Test::Unit::TestCase
 		assert_equal(true,re)
 	end
 	
-	def check_lcd_put_get_queue
-		puts "cd in testdir"
+	def check_lcd_put_get
+		@log_test.debug("cd in testdir")
 		re = @samba.lcd(TESTDIR)
 		assert_equal(true,re)
-		before2 = @samba.local('ls')
-		@samba.local("touch #{TESTFILE}")
-		after2 = @samba.local('ls')
-		assert(before2 != after2)
 		
-		puts "putting file"
+		@log_test.debug("making local test file")
+		f = File.new("#{TESTDIR}/#{TESTFILE}",'w')
+		f.puts "test file"
+		f.close
+		assert(File.exist?("#{TESTDIR}/#{TESTFILE}"))
+		
+		@log_test.debug("putting file")
 		re = @samba.put(:from => TESTFILE, :to => TESTFILE)
 		assert_kind_of(Array,re)
 		assert_equal(true,re[0])
 		
+		@log_test.debug("deleting local test file")
+		File.delete("#{TESTDIR}/#{TESTFILE}")
+		assert(!File.exist?("#{TESTDIR}/#{TESTFILE}"))
+		
 		check_exist(TESTFILE)
 		
-		puts "rm local test file"
-		@samba.local("rm #{TESTFILE}")
-		after2_2 = @samba.local('ls')
-		assert(before2 == after2_2)
-		
-		puts "getting test file"
+		@log_test.debug("getting test file")
 		re = @samba.get(:from => TESTFILE, :to => TESTFILE)
 		assert_kind_of(Array,re)
 		assert_equal(true,re[0])
 		
-		puts "delete remote test file"
+		@log_test.debug("delete remote test file")
 		re = @samba.del(TESTFILE)
 		assert_equal(true,re)
 		
-		puts "check local test file"
-		after2_3 = @samba.local('ls')
-		assert(after2 == after2_3)
-		@samba.local("rm #{TESTFILE}")
-		
-		check_queue
+		@log_test.debug("check local test file")
+		assert(File.exist?("#{TESTDIR}/#{TESTFILE}"))
+		File.delete("#{TESTDIR}/#{TESTFILE}")
+		assert(!File.exist?("#{TESTDIR}/#{TESTFILE}"))
 		
 		re = @samba.lcd('..')
 		assert_equal(true,re)
-		@samba.local("rmdir #{TESTDIR}")
+		
 	end
 	
 	def check_queue
-		puts "Checking queue"
-		jobs = 30
-		puts "was inside: " + @samba.queue_results.inspect
+		jobs = 300
+		@log_test.info("Testing queue... (be patient, this will take a couple minutes)")
 		assert_equal(true, @samba.queue_empty?)
 		assert_equal(true, @samba.queue_done?)
 		assert_equal(0,@samba.queue_waiting)
 		
 		files = Array.new(jobs) { |id| "file_" + id.to_s }
-		content = "01" * 1000000
+		content = "01" * 10000
 		files.each do |file|
 			f = File.new("#{TESTDIR}/#{file}",'w')
 			f.puts content
 			f.close
 		end
+		
+		re = @samba.lcd(TESTDIR)
+		assert_equal(true,re)
+		
 		files.each do |file|
 			@samba.put(:from => file, :to => file, :queue => true)
 		end
@@ -193,16 +225,15 @@ class TestSambalaMain < Test::Unit::TestCase
 		assert(@samba.queue_waiting > 0)
 		
 		result = @samba.queue_processing
-		puts "queue processing result is: #{result.inspect}"
+		@log_test.debug("queue processing result is: #{result.inspect}")
 		assert_kind_of(Array,result)
-		assert_equal(THREADS,result.size)
 		assert_kind_of(Array,result[0])
 		assert_equal(2,result[0].size)
 		assert_kind_of(Integer,result[0][0])
 		assert_kind_of(String,result[0][1])
-		sleep 10
+		
 		result = @samba.queue_completed
-		puts "queue completed results is: #{result.inspect}"
+		@log_test.debug("queue completed results is: #{result.inspect}")
 		assert_kind_of(Array,result)
 		assert_kind_of(Array,result[0])
 		assert_equal(4,result[0].size)
@@ -212,7 +243,7 @@ class TestSambalaMain < Test::Unit::TestCase
 		assert_kind_of(String,result[0][3])
 		
 		more_result = @samba.queue_results
-		puts "more result: #{more_result.inspect}"
+		@log_test.debug("more result: #{more_result.inspect}")
 		assert_kind_of(Array,more_result)
 		assert_kind_of(Array,more_result[0])
 		assert_equal(4,more_result[0].size)
@@ -230,13 +261,12 @@ class TestSambalaMain < Test::Unit::TestCase
 		
 		files.each do |file|
 			del = @samba.del(file)
-			puts "remote delete: #{del.inspect}"
+			@log_test.debug("remote delete: #{del.inspect}")
 			File.delete("#{TESTDIR}/#{file}")
 		end
 		
+		re = @samba.lcd('..')
+		assert_equal(true,re)
 	end
-	
-	
-  
   
 end
