@@ -273,17 +273,6 @@ class Sambala
   def volume
     execute('volume' ,'', false)[1]
   end
-
-	# The +local+ methods allow shell command execution on the local machine.
-	# === Parameters
-	# * _command_ = the shell comand to be executed locally
-	# === Interactive Returns
-	# * _string_ = the normal return message of the command
-	# === Example
-	# 	samba.local('mkdir mydir')
-	def local(command)
-		execute('!', command, false)[1]
-	end
   
 	# The +queue_waiting+ method returns the number of waiting task in queue
 	# === Example
@@ -337,7 +326,8 @@ class Sambala
   # === Example
   #   samba.close
   def close
-    result = @gardener.close; $log_sambala.close
+    result = @gardener.close
+		# $log_sambala.close
     result.values.map { |queue| queue.empty? }.uniq.size == 1 ? true : false
   end
 
