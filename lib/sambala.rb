@@ -327,7 +327,6 @@ class Sambala
   #   samba.close
   def close
     result = @gardener.close
-		# $log_sambala.close
     result.values.map { |queue| queue.empty? }.uniq.size == 1 ? true : false
   end
 
@@ -336,6 +335,7 @@ class Sambala
 	end
 	
 	def Sambala::log_level=(level)
+		level.to_sym unless level.is_a?(Symbol)
 		@@log_level = case level
 		when :debug
 			Logger::DEBUG
@@ -347,6 +347,8 @@ class Sambala
 			Logger::ERROR
 		when :fatal
 			Logger::FATAL
+		else
+			Logger::UNKNOWN
 		end
 	end
 
