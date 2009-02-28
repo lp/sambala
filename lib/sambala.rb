@@ -46,15 +46,13 @@
 # :title:Sambala
 
 class Sambala
-	require 'logger'
   require 'pty'
   require 'expect'
   require 'rubygems'
+	require 'globalog'
   require 'abundance'
-  
-  require 'sambala_gardener'
+  require File.join( File.dirname( File.expand_path(__FILE__)), 'sambala_gardener')
   include Gardener
-	@@log_level = Logger::WARN; @@log_output = STDERR
   
   # The +new+ class method initializes Sambala.
   # === Parameters
@@ -71,7 +69,7 @@ class Sambala
   #                       :password =>  'eggman', 
   #                       :threads  =>  2 )
   def initialize(options={:domain => '', :host => '', :share => '', :user => '', :password => '', :threads => 1})
-    init_logger
+    $log_sambala = GlobaLog.logger(STDERR,:warn)
 		begin
       options[:threads] = 4 if options[:threads] > 4
       options[:init_timeout] = options[:threads]
@@ -329,34 +327,5 @@ class Sambala
     result = @gardener.close
     result.values.map { |queue| queue.empty? }.uniq.size == 1 ? true : false
   end
-
-	def Sambala::log_output=(out)
-		@@log_output = out
-	end
-	
-	def Sambala::log_level=(level)
-		level.to_sym unless level.is_a?(Symbol)
-		@@log_level = case level
-		when :debug
-			Logger::DEBUG
-		when :info
-			Logger::INFO
-		when :warn
-			Logger::WARN
-		when :error
-			Logger::ERROR
-		when :fatal
-			Logger::FATAL
-		else
-			Logger::UNKNOWN
-		end
-	end
-
-	private
-	
-	def init_logger
-		$log_sambala = Logger.new(@@log_output)
-		$log_sambala.level = @@log_level
-	end
   
 end

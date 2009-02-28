@@ -1,7 +1,7 @@
-$:.unshift File.join(File.dirname(__FILE__), "..", "lib")
-require 'logger'
+require 'rubygems'
+require 'globalog'
 require 'test/unit'
-require 'sambala'
+require File.join( File.dirname( File.expand_path(__FILE__)), '..', 'lib', 'sambala')
 
 TESTFILE = 'sambala_test'
 TESTDIR = 'sambala_test_dir'
@@ -17,16 +17,10 @@ WELCOME = <<TITLE
 TITLE
 THREADS = 4
 
-if ARGV[0].nil? 
-	LOG_LEVEL = :warn
-else
-	LOG_LEVEL = ARGV[0].to_sym
-end
-
 class TestSambalaMain < Test::Unit::TestCase
   
   def setup
-		setup_logger(STDERR,LOG_LEVEL)
+		@log_test = GlobaLog.logger(STDERR,:info)
     check_smbclient_presence
     get_samba_param_from_input
     init_sambala
@@ -66,25 +60,6 @@ class TestSambalaMain < Test::Unit::TestCase
   end
   
   private
-
-	def setup_logger(out,level)
-		Sambala::log_level = level
-		@log_test = Logger.new(out)
-		case level
-		when :debug
-			@log_test.level = Logger::DEBUG
-		when :info
-			@log_test.level = Logger::INFO
-		when :warn
-			@log_test.level = Logger::WARN
-		when :error
-			@log_test.level = Logger::ERROR
-		when :fatal
-			@log_test.level = Logger::FATAL
-		else
-			@log_test.level = Logger::UNKNOWN
-		end
-	end
 
 	def put_marker
 		result = @samba.put(:from => 'test/' + File.basename(__FILE__), :to => File.basename(__FILE__))
