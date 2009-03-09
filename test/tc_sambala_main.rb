@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'globalog'
 require 'test/unit'
+require 'fileutils'
 require File.join( File.dirname( File.expand_path(__FILE__)), '..', 'lib', 'sambala')
 
 TESTFILE = 'sambala_test'
@@ -210,6 +211,12 @@ class TestSambalaMain < Test::Unit::TestCase
 		result = @samba.queue_completed
 		@log_test.debug("queue completed results is: #{result.inspect}")
 		assert_kind_of(Array,result)
+		60.times do |n|
+			break unless result[0].nil?
+			sleep 1
+			result = @samba.queue_completed
+			flunk("Could not get any queue done...") if n == 59 
+		end
 		assert_kind_of(Array,result[0])
 		assert_equal(4,result[0].size)
 		assert_kind_of(Integer,result[0][0])
