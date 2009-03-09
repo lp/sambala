@@ -292,7 +292,7 @@ class Sambala
 		parse_results(@gardener.harvest(:crop))
 	end
 	
-	# The +queue_empty?+ method return true if there are no jobs in queue
+	# The queue_empty? method return true if there are no jobs in queue
 	# === Example
 	# 	samba.queue_empty?		# false
 	def queue_empty?
