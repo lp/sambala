@@ -84,7 +84,7 @@ class Sambala
   # === Example
   #   samba.cd('aFolder/anOtherFolder/')   # =>  true
   def cd(to='.')
-		execute_all('cd',clean_path(to))
+		execute('cd',clean_path(to))[0]
   end
   
   # The +du+ instance method does exactly what _du_ usually does: estimates file space usage.
@@ -144,7 +144,7 @@ class Sambala
   # === Example
   #   samba.lcd('aLocalFolder/anOtherFolder/')   # => true
   def lcd(to='.')
-		execute_all('lcd', to)
+		execute('lcd', to)[0]
   end
   
   # The +lowercase+ method toggles lowercasing of filenames for the get command.
@@ -155,7 +155,7 @@ class Sambala
   # === Example
   #   samba.lowercase   # => true      # toggle from files all UPPERCASE to all lowercase
   def lowercase
-    execute_all('lowercase' ,'')
+    execute('lowercase' ,'')[0]
   end
   
   # The method +ls+ or its alias _dir_, list the files and directories matching :mask in the current working directory on the smb server.
@@ -179,7 +179,7 @@ class Sambala
   # === Example
   #   samba.mask('filter*')  # => true
   def mask(mask)
-    execute_all('mask' ,mask)
+    execute('mask' ,mask)[0]
   end
   
   # The +mget+ method copy all files matching :mask from the server to the client machine
@@ -244,7 +244,7 @@ class Sambala
   # === Example
   #   samba.recurse   # => true
   def recurse
-    execute_all('recurse' ,'')
+    execute('recurse' ,'')[0]
   end
 
 	# The +rmdir+ method deletes the specified directory
