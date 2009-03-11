@@ -20,7 +20,7 @@ TITLE
 class TestSambalaMain < Test::Unit::TestCase
   
   def setup
-		@log_test = GlobaLog.logger(STDERR,:info)
+		@log_test = GlobaLog.logger(STDERR,:info,true)
     check_smbclient_presence
     get_samba_param_from_input
     init_sambala
@@ -173,7 +173,7 @@ class TestSambalaMain < Test::Unit::TestCase
 	end
 	
 	def check_queue
-		jobs = 20
+		jobs = 30
 		@log_test.info("Testing queue... (be patient, this will take a couple minutes)")
 		assert_equal(true, @samba.queue_empty?)
 		assert_equal(true, @samba.queue_done?)
@@ -201,6 +201,12 @@ class TestSambalaMain < Test::Unit::TestCase
 		result = @samba.queue_processing
 		@log_test.debug("queue processing result is: #{result.inspect}")
 		assert_kind_of(Array,result)
+		301.times do |n|
+			break unless result[0].nil?
+			sleep 1
+			result = @samba.queue_completed
+			flunk("Could not get any queue done...") if n == 300
+		end
 		assert_kind_of(Array,result[0])
 		assert_equal(2,result[0].size)
 		assert_kind_of(Integer,result[0][0])
