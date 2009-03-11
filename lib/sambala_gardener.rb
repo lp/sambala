@@ -33,22 +33,8 @@ class Sambala
     # * _queue_ = the command operation mode
     # === Example
     #   result = execute('cd','dir/otherDir*',false)  # =>  true
-    def execute(command,data,queue)
+    def execute(command,data,queue=false)
       (queue.is_a? TrueClass) ? exec_queue(command,data) : exec_interactive(command,data)
-    end
-    
-    # The +execute_all+ method does a special command invocation where all smbclient workers running in parallel
-    # are all sent the same command.  The method returns one boolean value for all workers success.
-    # === Parameters
-    # * _command_ = the command as a string
-    # * _data_ = the command argument as a string
-    # === Example
-    #   result = execute_all('mask','match*')   # =>  true
-    def execute_all(command,data)
-      result = @gardener.seed_all("#{command} #{data}")
-			$log_sambala.debug("execute_all result") {"#{result.inspect}"}
-      bools = result.map { |row| row[:success] }
-      bools.uniq.size == 1 ? true : false
     end
 
     # The +exec_interactive+ method follows +execute+ when queue=false.
