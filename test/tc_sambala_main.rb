@@ -16,7 +16,6 @@ WELCOME = <<TITLE
 
 /////////////////////////////////////////////////////////////
 TITLE
-THREADS = 4
 
 class TestSambalaMain < Test::Unit::TestCase
   
@@ -100,8 +99,7 @@ class TestSambalaMain < Test::Unit::TestCase
                           :host => @host, 
                           :share => @share,
                           :user => @user, 
-                          :password => @password, 
-                          :threads => THREADS)
+                          :password => @password)
     puts "Connection successfull,\nnow proceding with test:"
   end
   
@@ -175,14 +173,14 @@ class TestSambalaMain < Test::Unit::TestCase
 	end
 	
 	def check_queue
-		jobs = 300
+		jobs = 20
 		@log_test.info("Testing queue... (be patient, this will take a couple minutes)")
 		assert_equal(true, @samba.queue_empty?)
 		assert_equal(true, @samba.queue_done?)
 		assert_equal(0,@samba.queue_waiting)
 		
 		files = Array.new(jobs) { |id| "file_" + id.to_s }
-		content = "01" * 10000
+		content = "01" * 10000000
 		files.each do |file|
 			f = File.new("#{TESTDIR}/#{file}",'w')
 			f.puts content
@@ -211,11 +209,11 @@ class TestSambalaMain < Test::Unit::TestCase
 		result = @samba.queue_completed
 		@log_test.debug("queue completed results is: #{result.inspect}")
 		assert_kind_of(Array,result)
-		60.times do |n|
+		301.times do |n|
 			break unless result[0].nil?
 			sleep 1
 			result = @samba.queue_completed
-			flunk("Could not get any queue done...") if n == 59 
+			flunk("Could not get any queue done...") if n == 300
 		end
 		assert_kind_of(Array,result[0])
 		assert_equal(4,result[0].size)
