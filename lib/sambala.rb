@@ -28,8 +28,7 @@
 #                       :host     =>  'sambaserver',
 #                       :share    =>  'sambashare',
 #                       :user     =>  'walrus', 
-#                       :password =>  'eggman', 
-#                       :threads  =>  2 )
+#                       :password =>  'eggman')
 #                       
 #   samba.cd('myfolder')   # =>  true
 #   samba.put(:from => 'aLocalFile.txt')    # =>  [false, "aLocalFile.txt does not exist\r\n"]
@@ -60,19 +59,16 @@ class Sambala
   # * :host = the hostname of the smb server, may be IP or fully qualified domain name
   # * :user = the user name to log into the server
   # * :password = the password to log into the server
-  # * :threads = how many parallel operations you want initiated, !!! higher than 4 at you own risk !!!
   # === Example
   #   samba = Sambala.new(  :domain   =>  'NTDOMAIN', 
   #                       :host     =>  'sambaserver',
   #                       :share    =>  'sambashare',
   #                       :user     =>  'walrus', 
-  #                       :password =>  'eggman', 
-  #                       :threads  =>  2 )
-  def initialize(options={:domain => '', :host => '', :share => '', :user => '', :password => '', :threads => 1})
+  #                       :password =>  'eggman')
+  def initialize(options={:domain => '', :host => '', :share => '', :user => '', :password => ''})
     $log_sambala = GlobaLog.logger(STDERR,:warn)
 		begin
-      options[:threads] = 4 if options[:threads] > 4
-      options[:init_timeout] = options[:threads]
+      options[:init_timeout] = 1
       @options = options; gardener_ok
     rescue
       @gardener.close unless @gardener.nil? || @gardener.class != 'Gardener'
