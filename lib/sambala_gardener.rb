@@ -145,7 +145,7 @@ class Sambala
 
                     seed.crop(success, msg)
                     throw :result
-									elsif iter > 9999
+									elsif iter > 9999999
 										$log_sambala.warn("Failed to #{seed.sprout}")
 										seed.crop(false, "Failed to #{seed.sprout}")
 										throw :result
