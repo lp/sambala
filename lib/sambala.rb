@@ -32,7 +32,7 @@
 #                       
 #   samba.cd('myfolder')   # =>  true
 #   samba.put(:from => 'aLocalFile.txt')    # =>  [false, "aLocalFile.txt does not exist\r\n"]
-#   
+#   samba.close
 # 
 # For detailed documentation refer to the online ruby-doc:
 # http://sambala.rubyforge.org/ruby-doc/
@@ -207,6 +207,20 @@ class Sambala
     execute('mkdir' , clean_path(path), queue)[0]
   end
   alias md mkdir
+
+	def mkpath(path)
+		paths = []
+		until path == '/' || path == '.'
+			paths.unshift path
+			path = File.dirname path
+		end
+		result = String.new
+		paths.each do |path|
+			result = execute('mkdir' , clean_path(path), false)[0]
+			break if result == false
+		end
+		return result
+	end
   
   # The +mput+ method copy all files matching :mask in the current working directory on the local machine to the server.
   # See man page for smbclient to get more on the details of operation
@@ -257,6 +271,10 @@ class Sambala
 	# 	samba.rmdir('mydir')		# => true
 	def rmdir(path,queue=false)
 		execute('rmdir' , clean_path(path), queue)[0]
+	end
+	
+	def rmpath(path)
+		execute('ls' ,mask, false)[1]
 	end
   
   # The +volume+ method returns remote volume information.
