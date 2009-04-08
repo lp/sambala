@@ -28,7 +28,7 @@ Example:
                       
   samba.cd('myfolder')   # =>  true
   samba.put(:from => 'aLocalFile.txt')    # =>  [false, "aLocalFile.txt does not exist\r\n"]
-  
+  samba.close
 
 For detailed documentation refer to the online ruby-doc:
 http://sambala.rubyforge.org/ruby-doc/
