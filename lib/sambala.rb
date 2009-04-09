@@ -67,6 +67,7 @@ class Sambala
   #                       :password =>  'eggman')
   def initialize(options={:domain => '', :host => '', :share => '', :user => '', :password => ''})
     $log_sambala = GlobaLog.logger(STDERR,:warn)
+		@recurse = false
 		begin
       options[:init_timeout] = 1
       @options = options; gardener_ok
@@ -254,11 +255,22 @@ class Sambala
   # The +recurse+ method toggles directory recursion
   # This method has no queue processing option
   # === Interactive Returns
-  # * _boolean_ = confirms if +mkdir+ operation completed successfully
+	# This methods has 3 possible return values showing the actual "recurse" state:
+	# * _true_ = "recurse" is turned on
+	# * _false_ = "recurse" is turned off
+	# * _nil_ = "recurse" command failed
   # === Example
   #   samba.recurse   # => true
   def recurse
-    execute('recurse' ,'')[0]
+		if execute('recurse' ,'')[0]
+			if @recurse == false
+				@recurse = true
+			else
+				@recurse = false
+			end
+		else
+			return nil
+		end
   end
 
 	# The +rmdir+ method deletes the specified directory
