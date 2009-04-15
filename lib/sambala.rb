@@ -107,6 +107,7 @@ class Sambala
   # === Example
   #   samba.del('aFile')   # =>  true
   def del(mask, queue=false)
+		self.recurse!(false)
     execute('del', mask, queue)[0]
   end
   alias rm del
@@ -119,6 +120,7 @@ class Sambala
   # === Example
   #   samba.exist?('aFile')  # => true
   def exist?(mask)
+		self.recurse!(false)
     execute('ls', mask, false)[0]
   end
   
@@ -133,8 +135,8 @@ class Sambala
   # === Example
   #   samba.get(:from => 'aFile.txt')   # => [true, "getting file \\aFile.txt.rb of size 3877 as test.rb (99.6 kb/s) (average 89.9 kb/s)\r\n"]
   def get(opts={:from => nil, :to => nil, :queue => false})
-    opts[:to].nil? ? strng = opts[:from] : strng = clean_path(opts[:from]) + ' ' + opts[:to]
-    execute('get', strng, opts[:queue])
+    opts[:to].nil? ? strng = opts[:from] + ' ' + opts[:from].split(/[\/|\\]/)[-1]  : strng = opts[:from] + ' ' + opts[:to]
+    execute('get', clean_path( strng), opts[:queue])
   end
   
   # The +lcd+ instance method changes the current working directory on the local machine to the directory specified. 
@@ -272,6 +274,18 @@ class Sambala
 			return nil
 		end
   end
+
+	def recurse!(state)
+		if state == @recurse
+			return @recurse
+		else
+			return self.recurse
+		end
+	end
+	
+	def recurse?
+		@recurse
+	end
 
 	# The +rmdir+ method deletes the specified directory
 	# === Parameters
