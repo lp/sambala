@@ -216,6 +216,14 @@ class Sambala
   end
   alias md mkdir
 
+	# The +mkpath+ method creates the needed directory to build the given path
+	# This method has no queue processing option
+	# === Parameters
+  # * _path_ = the directory path to create
+	# === Interactive Returns
+  # * _boolean_ = confirms if +mkpath+ operation completed successfully
+	# === Example
+  #   samba.mkpath('aTopFolder/aNewFolder/anOtherNewFolder')  # => true
 	def mkpath(path)
 		paths = []
 		until path == '/' || path == '.'
