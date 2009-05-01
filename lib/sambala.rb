@@ -280,6 +280,15 @@ class Sambala
 		end
   end
 
+	# The +recurse!+ method impose a true or false state to the recurse parameter
+	# This method has no queue processing option
+	# === Interactive Returns
+	# This methods has 3 possible return values showing the actual "recurse" state:
+	# * _true_ = "recurse" is turned on
+	# * _false_ = "recurse" is turned off
+	# * _nil_ = "recurse" command failed
+  # === Example
+  #   samba.recurse(true)   # => true
 	def recurse!(state)
 		if state == @recurse
 			return @recurse
@@ -288,6 +297,9 @@ class Sambala
 		end
 	end
 	
+	# The recurse? method returns the boolean recurse state
+	# === Example
+	# 	samba.recurse?				# => false
 	def recurse?
 		@recurse
 	end
