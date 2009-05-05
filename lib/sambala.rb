@@ -170,8 +170,8 @@ class Sambala
   #   samba.ls  # =>  genpi.rb                            A       81  Mon Nov 17 22:12:40 2008
   #                     34923 blocks of size 2097152. 27407 blocks available
   def ls(mask='')
-    result, string = execute('ls' ,mask, false)[1]
-		if result
+    result, string = execute('ls' ,mask, false)
+		if result == true
 			parse_ls(string,mask)
 		else
 			Array.new
