@@ -37,6 +37,7 @@ class TestSambalaMain < Test::Unit::TestCase
 		check_mkdir(REMOTE_DIR)
 		check_exist(REMOTE_DIR)
 		check_cd(REMOTE_DIR)
+		check_recurse
 		
 		ls_two = check_ls
 		assert(ls_one != ls_two)
@@ -130,6 +131,17 @@ class TestSambalaMain < Test::Unit::TestCase
 	def check_mkdir(path)
 		re = @samba.mkdir(path)
 		assert_equal(true,re)
+	end
+	
+	def check_recurse
+		initial_state = @samba.recurse?
+		assert( initial_state == true || initial_state == false )
+		toggle_state = @samba.recurse
+		assert( toggle_state == true || toggle_state == false )
+		assert_not_equal(initial_state, toggle_state)
+		final_state = @samba.recurse!(initial_state)
+		assert_equal(initial_state,final_state)
+		assert_equal(final_state,@samba.recurse?)
 	end
 	
 	def check_rmdir(path)
@@ -261,7 +273,7 @@ class TestSambalaMain < Test::Unit::TestCase
 		jobs = 2
 		@log_test.info("Testing a big copy... (be patient, this can also take a couple minutes)")
 		local_file = File.join(LOCAL_DIR,'dummy')
-		system("mkfile 1g #{local_file}")
+		system("mkfile 10m #{local_file}")
 		
 		before = @samba.ls
 		files = Array.new(jobs) { |id| "file_" + id.to_s }
