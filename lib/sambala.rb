@@ -324,8 +324,13 @@ class Sambala
 		execute('rmdir' , clean_path(path), queue)[0]
 	end
 	
+	# The +rmpath+ method deletes the specified directory and all the enclosed content recursively
 	def rmpath(path)
-		execute('ls' ,mask, false)[1]
+		recurse_init = self.recurse?
+		self.recurse!(true) if recurse_init != true
+		self.ls(path).reverse.each do |level|
+			
+		end
 	end
   
   # The +volume+ method returns remote volume information.
@@ -396,67 +401,40 @@ class Sambala
 	private
 	
 	def parse_ls(ls_string,mask)
-		if @recurse
-			if mask == ''
-				# recurse no mask
-				path_tree = ['.',{'.' => Array.new}]; now_level = Hash.new; base_level = 0
-				ls_string.split("\r\n").
-					delete_if { |item| item =~ /\.\s.+/ || item =~ /\.\s.+/ || item == '' }.
-						each do |item|
-							if base_level == 0
-								base_level = item.split(/[\\|\/]/).size
-								now_level = {:level => 1, :top => '.'}
-							end
-							if item =~ /^[\\|\/]/
-								level = item.split(/[\\|\/]/).size - base_level + 1
-								path_tree[level] = Hash.new unless path_tree[level]
-								path_tree[level][item] = Array.new
-								now_level = {:level => level, :top => item}
-							else
-								path_tree[now_level[:level]][now_level[:top]] << item
-							end
-						end
-			else
-				# recurse with mask
-				path_tree = [mask,Hash.new]; now_level = Hash.new; base_level = 0
-				ls_string.split("\r\n").
-					delete_if { |item| item =~ /\.\s.+/ || item =~ /\.\s.+/ || item == '' || item == '*'}.
-						each do |item|
-							if base_level == 0
-								path_tree[1] = {item => Array.new}
-								base_level = item.split(/[\\|\/]/).size
-								now_level = {:level => 1, :top => item}
-							elsif item =~ /^[\\|\/]/
-								level = item.split(/[\\|\/]/).size - base_level + 1
-								path_tree[level] = Hash.new unless path_tree[level]
-								path_tree[level][item] = Array.new
-								now_level = {:level => level, :top => item}
-							else
-								path_tree[now_level[:level]][now_level[:top]] << item
-							end		
-						end
-			end
-
+		base = case mask
+		when ''
+			'.'
 		else
-			if mask == ''
-				# no recurse no mask
-				path_tree = ['.',{'.' => Array.new}]; now_level = Hash.new; base_level = 0
-				ls_string.split("\r\n").
-					delete_if { |item| item =~ /\.\s.+/ || item =~ /\.\s.+/ || item == '' }.
-						each do |item|
-							path_tree[1]['.'] << item		
-						end
-			else
-				# no recurse with mask
-				path_tree = [mask,Hash.new]
-				ls_string.split("\r\n").
-					delete_if { |item| item == "\r\n" || item =~ /blocks\savailable/ || item == '' || item.size == 1 }.
-						each do |item|
-							path_tree[1][item] = [item]
-						end
-			end	
+			mask
+		end
+		if @recurse
+			path_tree = [base,{base => Array.new}]
+			now_level = {:level => 1, :top => base}
+			base_level = 0
+			ls_string.split("\r\n").
+				delete_if { |item| item =~ /\.\s.+/ || item =~ /\.\s.+/ || item == '' || item == '*'}.
+					each do |item|
+						base_level = item.split(/[\\|\/]/).size if base_level == 0
+
+						if item =~ /^[\\|\/]/
+							level = item.split(/[\\|\/]/).size - base_level + 1
+							path_tree[level] = Hash.new unless path_tree[level]
+							path_tree[level][item] = Array.new
+							now_level = {:level => level, :top => item}
+						else
+							path_tree[now_level[:level]][now_level[:top]] << item
+						end		
+					end
+		else
+			path_tree = [base,{base => Array.new}]
+			ls_string.split("\r\n").
+				delete_if { |item| item == "\r\n" || item =~ /blocks\savailable/ || item == '' || item.size == 1 || item =~ /\.\s.+/}.
+					each do |item|
+						path_tree[1][base] << item
+					end	
 		end
 		return path_tree
 	end
+	
   
 end
