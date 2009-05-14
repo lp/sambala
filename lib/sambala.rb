@@ -50,6 +50,8 @@ class Sambala
   require 'rubygems'
 	require 'globalog'
   require 'abundance'
+	require File.join( File.dirname( File.expand_path(__FILE__)), 'sambala_helpers')
+	include SambalaHelpers
   require File.join( File.dirname( File.expand_path(__FILE__)), 'sambala_gardener')
   include Gardener
   
@@ -328,8 +330,20 @@ class Sambala
 	def rmpath(path)
 		recurse_init = self.recurse?
 		self.recurse!(true) if recurse_init != true
-		self.ls(path).reverse.each do |level|
-			
+		self.ls(path).reverse.each_with_index do |level_hash, index|	
+			level_hash.each do |path,item_array|
+				base = case index
+				when 0
+					next
+				when 1
+					''
+				else
+					path
+				end
+				item_array.each do |item|
+					
+				end
+			end
 		end
 	end
   
@@ -397,44 +411,5 @@ class Sambala
     result = @gardener.close
     result.values.map { |queue| queue.empty? }.uniq.size == 1 ? true : false
   end
-
-	private
 	
-	def parse_ls(ls_string,mask)
-		base = case mask
-		when ''
-			'.'
-		else
-			mask
-		end
-		if @recurse
-			path_tree = [base,{base => Array.new}]
-			now_level = {:level => 1, :top => base}
-			base_level = 0
-			ls_string.split("\r\n").
-				delete_if { |item| item =~ /\.\s.+/ || item =~ /\.\s.+/ || item == '' || item == '*'}.
-					each do |item|
-						base_level = item.split(/[\\|\/]/).size if base_level == 0
-
-						if item =~ /^[\\|\/]/
-							level = item.split(/[\\|\/]/).size - base_level + 1
-							path_tree[level] = Hash.new unless path_tree[level]
-							path_tree[level][item] = Array.new
-							now_level = {:level => level, :top => item}
-						else
-							path_tree[now_level[:level]][now_level[:top]] << item
-						end		
-					end
-		else
-			path_tree = [base,{base => Array.new}]
-			ls_string.split("\r\n").
-				delete_if { |item| item == "\r\n" || item =~ /blocks\savailable/ || item == '' || item.size == 1 || item =~ /\.\s.+/}.
-					each do |item|
-						path_tree[1][base] << item
-					end	
-		end
-		return path_tree
-	end
-	
-  
 end
