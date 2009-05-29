@@ -4,7 +4,7 @@ module SambalaHelpers
 		attr_reader :body, :name, :type, :size, :date
 		def initialize(raw_string)
 			@body = raw_string
-			if raw_string =~ /\s(\w+)\s+(\w)\s+(\d+)\s+(.*)/
+			if raw_string =~ /\s(\S+)\s+(\w)\s+(\d+)\s+(.*)/
 				@name = $1
 				@type = $2
 				@size = $3
