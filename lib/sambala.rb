@@ -167,11 +167,60 @@ class Sambala
   # === Parameters
   # * _mask_ = the mask matching the file to be listed inside the current working directory.
   # === Interactive Returns
-  # * _string_ = containing +ls+ command results
+  # * _array_ = containing +ls+ command results as Hash of paths as keys and arrays of contained objects ( +LsItem+ ) as values.  Note that recursive operations yields very different results
   # === Example
-  #   samba.ls  # =>  genpi.rb                            A       81  Mon Nov 17 22:12:40 2008
-  #                     34923 blocks of size 2097152. 27407 blocks available
-  def ls(mask='')
+  #   list = samba.ls  # =>  [{"."=>[#<SambaHelpers::LsItem:0x19c44
+	# 																		@type="D", @name="safetyboot",
+	# 																		@date="Wed Apr 22 07:53:35 2009",
+	# 																		@string="  safetyboot                          D        0  Wed Apr 22 07:53:35 2009",
+	# 																		@size="0">]}] 
+	# 
+  # 	samba.recurse!(true)	# => true
+	# 
+	# 	samba.ls	# =>	[{"."=>[#<SambaHelpers::LsItem:0x17d54
+	# 														@type="D",
+	# 														@name="safetyboot",
+	# 														@date="Wed Apr 22 07:53:35 2009",
+	# 														@string="  safetyboot                          D        0  Wed Apr 22 07:53:35 2009",
+	# 														@size="0">]},
+	# 									{"\\safetyboot"=>[#<SambaHelpers::LsItem:0x18948
+	# 																			@type="D",
+	# 																			@name="boot1",
+	# 																			@date="Mon Apr 27 09:12:33 2009",
+	# 																			@string="  boot1                               D        0  Mon Apr 27 09:12:33 2009",
+	# 																			@size="0">,
+	# 																		#<SambaHelpers::LsItem:0x17b10
+	# 																			@type="D",
+	# 																			@name="boot2",
+	# 																			@date="Wed Apr 22 07:53:47 2009",
+	# 																			@string="  boot2                               D        0  Wed Apr 22 07:53:47 2009",
+	# 																			@size="0">]},
+	# 									{"\\safetyboot\\boot1"=>[#<SambaHelpers::LsItem:0x174bc
+	# 																							@type="A",
+	# 																							@name="bootfile.txt",
+	# 																							@date="Mon Apr 27 09:12:14 2009",
+	# 																							@string="  bootfile.txt                        A        0  Mon Apr 27 09:12:14 2009",
+	# 																							@size="4">,
+	# 																					 #<SambaHelpers::LsItem:0x17340
+	# 																							@type="D",
+	# 																							@name="dodidooda",
+	# 																							@date="Mon Apr 27 09:12:48 2009",
+	# 																							@string="  dodidooda                           D        0  Mon Apr 27 09:12:48 2009",
+	# 																							@size="0">],
+	# 									 "\\safetyboot\\boot2"=>[#<SambaHelpers::LsItem:0x179a8
+	# 																							@type="A",
+	# 																							@name="dummmmm.rtf",
+	# 																							@date="Wed Apr 22 07:53:41 2009",
+	# 																							@string="  dummmmm.rtf                         A        8  Wed Apr 22 07:53:41 2009",
+	# 																							@size="8">]},
+	# 									{"\\safetyboot\\boot1\\dodidooda"=>[#<SambaHelpers::LsItem:0x9f934
+	# 																													@type="A",
+	# 																													@name="doodyrt.rtf",
+	# 																													@date="Mon Apr 27 09:12:38 2009",
+	# 																													@string="  doodyrt.rtf                         A        8  Mon Apr 27 09:12:38 2009",
+	# 																													@size="8">]}] 
+
+	def ls(mask='')
     result, string = execute('ls' ,mask, false)
 		if result == true
 			parse_ls(string,mask)
